@@ -1,0 +1,52 @@
+package com.example.m3showcase.feature.settings.presentation
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.m3showcase.core.domain.usecase.LogoutUseCase
+import com.example.m3showcase.core.domain.usecase.ObserveSessionUseCase
+import com.example.m3showcase.core.domain.usecase.ObserveSettingsUseCase
+import com.example.m3showcase.core.domain.usecase.SetBalanceHiddenUseCase
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+
+class SettingsViewModel(
+    observeSettings: ObserveSettingsUseCase,
+    observeSession: ObserveSessionUseCase,
+    private val setBalanceHidden: SetBalanceHiddenUseCase,
+    private val logout: LogoutUseCase,
+) : ViewModel() {
+
+    private val showLogoutDialog = MutableStateFlow(false)
+
+    private val _events = Channel<SettingsEvent>(Channel.BUFFERED)
+    val events: Flow<SettingsEvent> = _events.receiveAsFlow()
+
+    val viewState: StateFlow<SettingsViewState> = combine(
+        observeSettings(), // cold (DataStore)
+        observeSession(),  // hot (StateFlow)
+        showLogoutDialog,  // hot (local)
+    ) { settings, user, dialog ->
+        SettingsViewState.Success(user, settings.themeMode, settings.eventTheme, settings.isBalanceHidden, dialog)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsViewState.Loading)
+
+    fun onAction(action: SettingsViewAction) {
+        when (action) {
+            SettingsViewAction.OnThemeClicked -> _events.trySend(SettingsEvent.OpenTheme)
+            is SettingsViewAction.OnHideBalanceChanged -> viewModelScope.launch { setBalanceHidden(action.hidden) }
+            SettingsViewAction.OnOpenShowcaseClicked -> _events.trySend(SettingsEvent.OpenShowcase)
+            SettingsViewAction.OnLogoutClicked -> showLogoutDialog.value = true
+            SettingsViewAction.OnLogoutDismissed -> showLogoutDialog.value = false
+            SettingsViewAction.OnLogoutConfirmed -> viewModelScope.launch {
+                showLogoutDialog.value = false
+                logout() // The session becomes null; BankApp sends the user back to Login.
+            }
+        }
+    }
+}
