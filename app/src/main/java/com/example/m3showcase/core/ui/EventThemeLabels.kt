@@ -12,6 +12,8 @@ val EventTheme.displayName: String
         EventTheme.KhmerNewYear -> "Khmer New Year"
         EventTheme.PchumBen -> "Pchum Ben"
         EventTheme.IndependenceDay -> "Independence Day"
+        EventTheme.Winter -> "Winter"
+        EventTheme.Spring -> "Spring"
     }
 
 /** Khmer name shown under the English one. */
@@ -21,6 +23,8 @@ val EventTheme.khmerName: String?
         EventTheme.KhmerNewYear -> "ចូលឆ្នាំខ្មែរ"
         EventTheme.PchumBen -> "បុណ្យភ្ជុំបិណ្ឌ"
         EventTheme.IndependenceDay -> "ទិវាឯករាជ្យ"
+        EventTheme.Winter -> "រដូវរងា"
+        EventTheme.Spring -> "រដូវផ្ការីក"
         EventTheme.Auto, EventTheme.Default -> null
     }
 
@@ -31,6 +35,8 @@ val EventTheme.greeting: String?
         EventTheme.KhmerNewYear -> "Happy Khmer New Year"
         EventTheme.PchumBen -> "Peaceful Pchum Ben"
         EventTheme.IndependenceDay -> "Happy Independence Day"
+        EventTheme.Winter -> "Stay warm this winter"
+        EventTheme.Spring -> "Happy spring"
         EventTheme.Auto, EventTheme.Default -> null
     }
 

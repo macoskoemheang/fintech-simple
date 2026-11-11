@@ -12,13 +12,18 @@ enum class EventTheme {
     KhmerNewYear,
     PchumBen,
     IndependenceDay,
+    /** Seasonal looks. Picked by hand only; Auto never switches to them. */
+    Winter,
+    Spring,
     ;
 
     val isFestival: Boolean get() = this != Auto && this != Default
 
     companion object {
         /** Themes a user can pick explicitly, in display order. */
-        val festivals: List<EventTheme> = listOf(WaterFestival, KhmerNewYear, PchumBen, IndependenceDay)
+        val festivals: List<EventTheme> = listOf(
+            WaterFestival, KhmerNewYear, PchumBen, IndependenceDay, Winter, Spring,
+        )
     }
 }
 

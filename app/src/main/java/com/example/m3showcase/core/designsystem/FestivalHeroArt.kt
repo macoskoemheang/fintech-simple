@@ -13,11 +13,13 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import com.example.m3showcase.core.domain.model.EventTheme
@@ -52,6 +54,8 @@ fun FestivalHeroArt(
             EventTheme.KhmerNewYear -> drawKhmerNewYear(progress, accent)
             EventTheme.PchumBen -> drawPchumBen(progress, accent)
             EventTheme.IndependenceDay -> drawIndependenceDay(progress, accent)
+            EventTheme.Winter -> drawWinter(progress, accent)
+            EventTheme.Spring -> drawSpring(progress, accent)
             EventTheme.Auto, EventTheme.Default -> Unit
         }
     }
@@ -219,6 +223,91 @@ private fun DrawScope.drawIndependenceDay(t: Float, red: Color) {
         val twinkle = 0.15f + 0.25f * ((sin((t * 2 + it * 0.21f) * TAU) + 1f) / 2f)
         drawCircle(Color.White.copy(alpha = twinkle), unit * 0.006f, p)
     }
+}
+
+// --- Winter: falling snow, a big snowflake and snowdrifts -------------------------------
+
+private fun DrawScope.drawWinter(t: Float, frost: Color) {
+    val unit = min(size.width, size.height)
+    // One large, slowly turning snowflake in the corner.
+    drawSnowflake(Offset(size.width * 0.86f, size.height * 0.2f), unit * 0.16f, frost.copy(alpha = 0.3f), spin = t * 60f)
+    drawSnowflake(Offset(size.width * 0.64f, size.height * 0.1f), unit * 0.06f, frost.copy(alpha = 0.22f), spin = -t * 90f)
+
+    // Snow falls and sways; seeded so flakes keep their place between frames.
+    val random = Random(21)
+    repeat(28) {
+        val baseX = random.nextFloat() * size.width
+        val speed = 0.5f + random.nextFloat() * 0.7f
+        val y = ((random.nextFloat() + t * speed) % 1f) * size.height
+        val sway = sin((t * 2 + it * 0.17f) * TAU) * unit * 0.02f
+        val r = unit * (0.004f + random.nextFloat() * 0.008f)
+        drawCircle(Color.White.copy(alpha = 0.25f + random.nextFloat() * 0.35f), r, Offset(baseX + sway, y))
+    }
+
+    // Two soft snowdrifts along the bottom.
+    drawWave(baseline = size.height * 0.93f, amplitude = unit * 0.03f, shift = 1f, color = Color.White.copy(alpha = 0.10f))
+    drawWave(baseline = size.height * 0.97f, amplitude = unit * 0.02f, shift = 2.5f, color = Color.White.copy(alpha = 0.14f))
+}
+
+/** Six-armed snowflake with small side branches. */
+private fun DrawScope.drawSnowflake(center: Offset, radius: Float, color: Color, spin: Float) {
+    val stroke = radius * 0.07f
+    rotate(spin, center) {
+        repeat(6) { i ->
+            val angle = i * TAU / 6
+            val tip = center + polar(angle, radius)
+            drawLine(color, center, tip, strokeWidth = stroke, cap = StrokeCap.Round)
+            listOf(0.45f, 0.7f).forEach { at ->
+                val joint = center + polar(angle, radius * at)
+                val branch = radius * (0.95f - at) * 0.6f
+                drawLine(color, joint, joint + polar(angle + 0.8f, branch), strokeWidth = stroke, cap = StrokeCap.Round)
+                drawLine(color, joint, joint + polar(angle - 0.8f, branch), strokeWidth = stroke, cap = StrokeCap.Round)
+            }
+        }
+    }
+}
+
+// --- Spring: blossom branch, drifting petals and the last melting snow -------------------
+
+private fun DrawScope.drawSpring(t: Float, blush: Color) {
+    val unit = min(size.width, size.height)
+    // A bare branch reaching in from the top-right corner, dotted with blossoms.
+    val start = Offset(size.width * 1.02f, size.height * 0.04f)
+    val end = Offset(size.width * 0.6f, size.height * 0.22f)
+    val branch = Path().apply {
+        moveTo(start.x, start.y)
+        quadraticTo(size.width * 0.82f, size.height * 0.24f, end.x, end.y)
+    }
+    drawPath(branch, Color(0xFF3B2A2A).copy(alpha = 0.35f), style = Stroke(unit * 0.012f, cap = StrokeCap.Round))
+    val sway = sin(t * TAU) * 6f
+    listOf(0.15f to 0.06f, 0.3f to 0.16f, 0.5f to 0.2f, 0.68f to 0.21f, 0.4f to 0.08f).forEachIndexed { i, (fx, fy) ->
+        val c = Offset(size.width * (1f - fx * 0.75f), size.height * fy)
+        drawFlower(c, unit * (0.022f + (i % 2) * 0.008f), blush.copy(alpha = 0.55f), spin = sway + i * 30f)
+    }
+
+    // Petals drift sideways as they fall.
+    val random = Random(5)
+    repeat(16) {
+        val speed = 0.4f + random.nextFloat() * 0.5f
+        val p = (random.nextFloat() + t * speed) % 1f
+        val x = size.width * (0.4f + random.nextFloat() * 0.6f) - p * unit * 0.25f
+        val y = p * size.height
+        rotate(t * 360f * speed + it * 25f, Offset(x, y)) {
+            drawOval(
+                blush.copy(alpha = 0.4f),
+                topLeft = Offset(x - unit * 0.012f, y - unit * 0.007f),
+                size = Size(unit * 0.024f, unit * 0.014f),
+            )
+        }
+    }
+
+    // A few late snowflakes still falling, and a thin melting drift.
+    repeat(8) {
+        val x = random.nextFloat() * size.width
+        val y = ((random.nextFloat() + t * 0.5f) % 1f) * size.height
+        drawCircle(Color.White.copy(alpha = 0.3f), unit * 0.005f, Offset(x, y))
+    }
+    drawWave(baseline = size.height * 0.97f, amplitude = unit * 0.012f, shift = 0.7f, color = Color.White.copy(alpha = 0.10f))
 }
 
 // --- Shared helpers ---------------------------------------------------------------------

@@ -83,6 +83,34 @@ internal val FestivalPalettes: Map<EventTheme, FestivalPalette> = mapOf(
             Color(0xFFFFB3B4), Color(0xFF680014), Color(0xFF920021), Color(0xFFFFDAD9),
         ),
     ),
+    // Icy blue sky, frost and falling snow.
+    EventTheme.Winter to FestivalPalette(
+        heroLight = listOf(Color(0xFF1D4E7A), Color(0xFF5B9BC9)),
+        heroDark = listOf(Color(0xFF0A1B2E), Color(0xFF1C3D5E)),
+        heroAccent = Color(0xFFE6F4FF),
+        light = FestivalAccents(
+            Color(0xFF2C628F), Color.White, Color(0xFFD0E4FF), Color(0xFF001D33),
+            Color(0xFF526070), Color.White, Color(0xFFD6E4F7), Color(0xFF0F1D2A),
+        ),
+        dark = FestivalAccents(
+            Color(0xFF9CCBFB), Color(0xFF003354), Color(0xFF0D4A75), Color(0xFFD0E4FF),
+            Color(0xFFBAC8DB), Color(0xFF243240), Color(0xFF3A4857), Color(0xFFD6E4F7),
+        ),
+    ),
+    // Late snow melting into blossom: soft pink petals and fresh green.
+    EventTheme.Spring to FestivalPalette(
+        heroLight = listOf(Color(0xFF8E3B63), Color(0xFFE38FB1)),
+        heroDark = listOf(Color(0xFF2E0F1F), Color(0xFF5E2442)),
+        heroAccent = Color(0xFFFFD8E8),
+        light = FestivalAccents(
+            Color(0xFF8E4A6B), Color.White, Color(0xFFFFD8E8), Color(0xFF3A0726),
+            Color(0xFF4C6638), Color.White, Color(0xFFCDEDB3), Color(0xFF0B2000),
+        ),
+        dark = FestivalAccents(
+            Color(0xFFFFAFD3), Color(0xFF561D3C), Color(0xFF713353), Color(0xFFFFD8E8),
+            Color(0xFFB1D199), Color(0xFF1F370E), Color(0xFF354E22), Color(0xFFCDEDB3),
+        ),
+    ),
 )
 
 /** The default dark scheme is navy-tinted, which fights red or saffron. Festivals use neutral greys. */
