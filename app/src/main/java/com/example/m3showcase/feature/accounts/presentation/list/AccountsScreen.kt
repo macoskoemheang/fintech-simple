@@ -1,5 +1,7 @@
 package com.example.m3showcase.feature.accounts.presentation.list
 
+import com.example.m3showcase.core.designsystem.bankTopAppBarColors
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -81,9 +83,11 @@ fun AccountsScreen(
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
+        containerColor = Color.Transparent, // AppBackground shows through.
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeFlexibleTopAppBar(
+                colors = bankTopAppBarColors(),
                 title = { Text("My Accounts") },
                 subtitle = { Text("Savings and current accounts") },
                 scrollBehavior = scrollBehavior,

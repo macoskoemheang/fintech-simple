@@ -31,6 +31,8 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.luminance
 import com.example.m3showcase.core.designsystem.StatusBarIcons
+import com.example.m3showcase.core.designsystem.AppBackground
+import androidx.compose.ui.graphics.Color
 import com.example.m3showcase.core.designsystem.component.ConnectivityBanner
 import com.example.m3showcase.core.designsystem.component.ConnectivityBannerState
 import com.example.m3showcase.core.navigation.AppNavigator
@@ -77,7 +79,11 @@ fun BankApp(isLoggedIn: Boolean, bannerState: ConnectivityBannerState) {
     val darkTheme = MaterialTheme.colorScheme.background.luminance() < 0.5f
     StatusBarIcons(light = darkTheme || heroOnTop || bannerState != ConnectivityBannerState.Hidden)
 
+    // One shared backdrop behind every screen. Screens are transparent, so the
+    // default crossfade between them keeps the background perfectly still.
+    AppBackground {
     Scaffold(
+        containerColor = Color.Transparent,
         contentWindowInsets = WindowInsets(0), // Each screen handles its own insets.
         bottomBar = {
             AnimatedVisibility(
@@ -85,7 +91,7 @@ fun BankApp(isLoggedIn: Boolean, bannerState: ConnectivityBannerState) {
                 enter = slideInVertically { it },
                 exit = slideOutVertically { it },
             ) {
-                ShortNavigationBar {
+                ShortNavigationBar(containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.94f)) {
                     TopLevelDestination.entries.forEach { tab ->
                         val selected = tab == currentTab
                         ShortNavigationBarItem(
@@ -173,5 +179,6 @@ fun BankApp(isLoggedIn: Boolean, bannerState: ConnectivityBannerState) {
                 )
             }
         }
+    }
     }
 }

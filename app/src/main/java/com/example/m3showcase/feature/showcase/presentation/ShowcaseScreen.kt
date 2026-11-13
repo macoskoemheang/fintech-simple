@@ -1,5 +1,7 @@
 package com.example.m3showcase.feature.showcase.presentation
 
+import com.example.m3showcase.core.designsystem.bankTopAppBarColors
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -84,9 +86,11 @@ fun ShowcaseScreen(
     var fabExpanded by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
+        containerColor = Color.Transparent, // AppBackground shows through.
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeFlexibleTopAppBar(
+                colors = bankTopAppBarColors(),
                 title = { Text("Material 3 Expressive") },
                 subtitle = { Text(state.selectedTab.label) },
                 scrollBehavior = scrollBehavior

@@ -1,5 +1,7 @@
 package com.example.m3showcase.feature.report.presentation
 
+import com.example.m3showcase.core.designsystem.bankTopAppBarColors
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -16,7 +18,9 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun TriggerReportRoute() {
     val rows = remember { sampleTriggerRows() }
-    Scaffold(topBar = { CenterAlignedTopAppBar(title = { Text("Trigger Report") }) }) { padding ->
+    Scaffold(
+        containerColor = Color.Transparent, // AppBackground shows through.
+        topBar = { CenterAlignedTopAppBar(colors = bankTopAppBarColors(), title = { Text("Trigger Report") }) }) { padding ->
         TriggerReportTable(
             rows = rows,
             modifier = Modifier

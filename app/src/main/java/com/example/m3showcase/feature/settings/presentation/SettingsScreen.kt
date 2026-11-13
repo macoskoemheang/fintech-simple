@@ -1,5 +1,6 @@
 package com.example.m3showcase.feature.settings.presentation
 
+import com.example.m3showcase.core.designsystem.bankTopAppBarColors
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -83,8 +84,9 @@ fun SettingsRoute(
 fun SettingsScreen(state: SettingsViewState, onAction: (SettingsViewAction) -> Unit) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
+        containerColor = Color.Transparent, // AppBackground shows through.
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = { LargeFlexibleTopAppBar(title = { Text("More") }, scrollBehavior = scrollBehavior) },
+        topBar = { LargeFlexibleTopAppBar(colors = bankTopAppBarColors(), title = { Text("More") }, scrollBehavior = scrollBehavior) },
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             when (state) {

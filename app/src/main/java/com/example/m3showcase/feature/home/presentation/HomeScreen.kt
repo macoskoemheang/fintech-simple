@@ -1,5 +1,6 @@
 package com.example.m3showcase.feature.home.presentation
 
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -72,6 +73,7 @@ fun HomeScreen(
     onAction: (HomeViewAction) -> Unit,
 ) {
     Scaffold(
+        containerColor = Color.Transparent, // AppBackground shows through.
         snackbarHost = { SnackbarHost(snackbarHostState) },
         // The header draws behind the status bar itself.
         contentWindowInsets = WindowInsets(0),

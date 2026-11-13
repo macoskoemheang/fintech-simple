@@ -1,5 +1,6 @@
 package com.example.m3showcase.feature.settings.presentation.theme
 
+import com.example.m3showcase.core.designsystem.bankTopAppBarColors
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
@@ -97,8 +98,10 @@ fun ThemeRoute(
 @Composable
 fun ThemeScreen(state: ThemeViewState, onAction: (ThemeViewAction) -> Unit) {
     Scaffold(
+        containerColor = Color.Transparent, // AppBackground shows through.
         topBar = {
             TopAppBar(
+                colors = bankTopAppBarColors(),
                 title = { Text("Theme") },
                 navigationIcon = {
                     IconButton(onClick = { onAction(ThemeViewAction.OnBackClicked) }) {

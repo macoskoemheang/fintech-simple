@@ -1,5 +1,6 @@
 package com.example.m3showcase.feature.receive.presentation
 
+import com.example.m3showcase.core.designsystem.bankTopAppBarColors
 import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -71,7 +72,9 @@ fun ReceiveRoute(viewModel: ReceiveViewModel = koinViewModel()) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReceiveScreen(state: ReceiveViewState, onAction: (ReceiveViewAction) -> Unit) {
-    Scaffold(topBar = { CenterAlignedTopAppBar(title = { Text("Receive money") }) }) { padding ->
+    Scaffold(
+        containerColor = Color.Transparent, // AppBackground shows through.
+        topBar = { CenterAlignedTopAppBar(colors = bankTopAppBarColors(), title = { Text("Receive money") }) }) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             when (state) {
                 ReceiveViewState.Loading -> LoadingState()

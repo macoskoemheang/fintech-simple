@@ -1,5 +1,7 @@
 package com.example.m3showcase.feature.accounts.presentation.history
 
+import com.example.m3showcase.core.designsystem.bankTopAppBarColors
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -75,8 +77,10 @@ fun TransactionHistoryScreen(
 ) {
     val account = (state as? TransactionHistoryViewState.Success)?.history?.account
     Scaffold(
+        containerColor = Color.Transparent, // AppBackground shows through.
         topBar = {
             TopAppBar(
+                colors = bankTopAppBarColors(),
                 title = {
                     Column {
                         Text(account?.name ?: "All transactions")

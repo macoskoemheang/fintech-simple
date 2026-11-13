@@ -1,5 +1,7 @@
 package com.example.m3showcase.feature.receipt.presentation
 
+import com.example.m3showcase.core.designsystem.bankTopAppBarColors
+import androidx.compose.ui.graphics.Color
 import android.content.Intent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -91,8 +93,10 @@ fun ReceiptRoute(
 @Composable
 fun ReceiptScreen(state: ReceiptViewState, onAction: (ReceiptViewAction) -> Unit) {
     Scaffold(
+        containerColor = Color.Transparent, // AppBackground shows through.
         topBar = {
             TopAppBar(
+                colors = bankTopAppBarColors(),
                 title = { Text(if ((state as? ReceiptViewState.Success)?.isNewTransfer == true) "" else "Transaction details") },
                 navigationIcon = {
                     IconButton(onClick = { onAction(ReceiptViewAction.OnDoneClicked) }) {

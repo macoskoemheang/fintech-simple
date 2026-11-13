@@ -1,5 +1,7 @@
 package com.example.m3showcase.feature.transfer.presentation
 
+import com.example.m3showcase.core.designsystem.bankTopAppBarColors
+import androidx.compose.ui.graphics.Color
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -94,8 +96,10 @@ fun TransferScreen(
     onAction: (TransferViewAction) -> Unit,
 ) {
     Scaffold(
+        containerColor = Color.Transparent, // AppBackground shows through.
         topBar = {
             TopAppBar(
+                colors = bankTopAppBarColors(),
                 title = { Text("Transfer") },
                 navigationIcon = {
                     IconButton(onClick = { onAction(TransferViewAction.OnBackClicked) }) {
