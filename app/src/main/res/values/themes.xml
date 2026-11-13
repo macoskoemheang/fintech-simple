@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.M3showcase" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- AppCompat parent: MainActivity is an AppCompatActivity so in-app language switching
+         also works below Android 13. Compose draws everything, so nothing else changes. -->
+    <style name="Theme.M3showcase" parent="Theme.AppCompat.DayNight.NoActionBar" />
+
+    <!--
+        Launch theme: the system splash shows the brand mark on navy, then swaps to the app theme.
+        The Compose intro (BrandSplash) starts from exactly this frame, so the handoff is invisible.
+    -->
+    <style name="Theme.M3showcase.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/brand_navy</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/avd_splash_mark</item>
+        <item name="windowSplashScreenAnimationDuration">500</item>
+        <item name="postSplashScreenTheme">@style/Theme.M3showcase</item>
+    </style>
 </resources>

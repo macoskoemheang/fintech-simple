@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.example.m3showcase.core.ui.UiText
 
 class TransferViewModel(
     initialFromAccountId: String?,
@@ -36,8 +37,8 @@ class TransferViewModel(
         val recipient: String = "",
         val amount: String = "",
         val note: String = "",
-        val recipientError: String? = null,
-        val amountError: String? = null,
+        val recipientError: UiText? = null,
+        val amountError: UiText? = null,
         val isSubmitting: Boolean = false,
         val pendingConfirmation: TransferRequest? = null,
     )
@@ -123,9 +124,9 @@ class TransferViewModel(
     private fun applyError(error: Throwable) {
         when {
             error is BankError.Validation && error.field == BankError.Field.AccountNumber ->
-                input.update { it.copy(recipientError = error.reason) }
+                input.update { it.copy(recipientError = error.toUserMessage()) }
             error is BankError.Validation && error.field == BankError.Field.Amount ->
-                input.update { it.copy(amountError = error.reason) }
+                input.update { it.copy(amountError = error.toUserMessage()) }
             error is BankError.InsufficientFunds ->
                 input.update { it.copy(amountError = error.toUserMessage()) }
             else -> _events.trySend(TransferEvent.ShowMessage(error.toUserMessage()))

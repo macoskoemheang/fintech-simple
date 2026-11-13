@@ -28,7 +28,8 @@ private fun ApiException.toBankError(): BankError = when (errorCode) {
     "INVALID_PIN" -> BankError.InvalidPin
     "INSUFFICIENT_FUNDS" -> BankError.InsufficientFunds
     "ACCOUNT_NOT_FOUND" -> BankError.AccountNotFound
-    "SAME_ACCOUNT" -> BankError.Validation(BankError.Field.AccountNumber, "You can't transfer to the same account")
-    "CURRENCY_MISMATCH" -> BankError.Validation(BankError.Field.AccountNumber, "Destination account uses a different currency")
+    "NOT_FOUND" -> BankError.NotFound
+    "SAME_ACCOUNT" -> BankError.Validation(BankError.Field.AccountNumber, BankError.Rule.SameAccount)
+    "CURRENCY_MISMATCH" -> BankError.Validation(BankError.Field.AccountNumber, BankError.Rule.CurrencyMismatch)
     else -> BankError.Unknown(message)
 }

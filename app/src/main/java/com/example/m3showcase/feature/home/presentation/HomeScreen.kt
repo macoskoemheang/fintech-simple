@@ -37,6 +37,10 @@ import com.example.m3showcase.feature.home.domain.model.HomeDashboard
 import com.example.m3showcase.feature.home.presentation.components.HomeHeader
 import com.example.m3showcase.feature.home.presentation.components.QuickActionGrid
 import org.koin.androidx.compose.koinViewModel
+import androidx.compose.ui.res.stringResource
+import com.example.m3showcase.R
+import com.example.m3showcase.core.ui.asString
+import androidx.compose.ui.platform.LocalContext
 
 /** Navigation callbacks are passed in, so the feature never depends on the navigator. */
 @Composable
@@ -46,18 +50,23 @@ fun HomeRoute(
     onOpenReceive: () -> Unit,
     onOpenTransactionHistory: (accountId: String?) -> Unit,
     onOpenReceipt: (transactionId: String) -> Unit,
+    onOpenNotifications: () -> Unit,
+    onOpenService: (QuickAction) -> Unit,
     viewModel: HomeViewModel = koinViewModel(),
 ) {
     val state by viewModel.viewState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
-                is HomeEvent.ShowMessage -> snackbarHostState.showSnackbar(event.text)
+                is HomeEvent.ShowMessage -> snackbarHostState.showSnackbar(event.text.asString(context))
                 HomeEvent.OpenAccounts -> onOpenAccounts()
                 HomeEvent.OpenTransfer -> onOpenTransfer()
                 HomeEvent.OpenReceive -> onOpenReceive()
+                HomeEvent.OpenNotifications -> onOpenNotifications()
+                is HomeEvent.OpenService -> onOpenService(event.action)
                 is HomeEvent.OpenTransactionHistory -> onOpenTransactionHistory(event.accountId)
                 is HomeEvent.OpenReceipt -> onOpenReceipt(event.transactionId)
             }
@@ -82,7 +91,7 @@ fun HomeScreen(
             when (state) {
                 HomeViewState.Loading -> LoadingState()
                 is HomeViewState.Error -> ErrorState(
-                    message = state.message,
+                    message = state.message.asString(),
                     isOffline = state.isOffline,
                     onRetry = { onAction(HomeViewAction.OnRetry) },
                 )
@@ -121,7 +130,7 @@ private fun HomeContent(
                     isBalanceHidden = dashboard.isBalanceHidden,
                     onToggleBalance = { onAction(HomeViewAction.OnToggleBalanceVisibility) },
                     onAccountClick = { onAction(HomeViewAction.OnAccountClicked(it)) },
-                    onNotificationsClick = { onAction(HomeViewAction.OnQuickActionClicked(QuickAction.Locator)) },
+                    onNotificationsClick = { onAction(HomeViewAction.OnNotificationsClicked) },
                 )
             }
             item(key = "actions") {
@@ -136,17 +145,17 @@ private fun HomeContent(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        "Recent transactions",
+                        stringResource(R.string.home_recent_transactions),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.weight(1f),
                     )
-                    TextButton(onClick = { onAction(HomeViewAction.OnSeeAllTransactionsClicked) }) { Text("See all") }
+                    TextButton(onClick = { onAction(HomeViewAction.OnSeeAllTransactionsClicked) }) { Text(stringResource(R.string.home_see_all)) }
                 }
             }
             if (dashboard.recentTransactions.isEmpty()) {
                 item(key = "empty") {
-                    EmptyState("No transactions yet", "Your latest activity will show up here.")
+                    EmptyState(stringResource(R.string.home_empty_title), stringResource(R.string.home_empty_message))
                 }
             } else {
                 items(dashboard.recentTransactions, key = { it.id }) { tx ->

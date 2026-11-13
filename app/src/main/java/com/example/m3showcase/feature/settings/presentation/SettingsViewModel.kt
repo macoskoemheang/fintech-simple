@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import com.example.m3showcase.core.domain.usecase.ObserveAppLanguageUseCase
+import com.example.m3showcase.core.language.LanguageSwitchController
 
 class SettingsViewModel(
     observeSettings: ObserveSettingsUseCase,
@@ -23,10 +25,16 @@ class SettingsViewModel(
     private val setBalanceHidden: SetBalanceHiddenUseCase,
     private val logout: LogoutUseCase,
     private val setSessionTimeout: SetSessionTimeoutUseCase,
+    observeAppLanguage: ObserveAppLanguageUseCase,
+    private val languageSwitch: LanguageSwitchController,
 ) : ViewModel() {
 
     private val showLogoutDialog = MutableStateFlow(false)
     private val showSessionTimeoutDialog = MutableStateFlow(false)
+    private val showLanguageDialog = MutableStateFlow(false)
+
+    /** Dialog flags grouped so the main combine stays within five flows. */
+    private val dialogs = combine(showLogoutDialog, showSessionTimeoutDialog, showLanguageDialog, ::Triple)
 
     private val _events = Channel<SettingsEvent>(Channel.BUFFERED)
     val events: Flow<SettingsEvent> = _events.receiveAsFlow()
@@ -34,9 +42,9 @@ class SettingsViewModel(
     val viewState: StateFlow<SettingsViewState> = combine(
         observeSettings(), // cold (DataStore)
         observeSession(),  // hot (StateFlow)
-        showLogoutDialog,  // hot (local)
-        showSessionTimeoutDialog, // hot (local)
-    ) { settings, user, logoutDialog, timeoutDialog ->
+        observeAppLanguage(), // hot (platform per-app locale)
+        dialogs,           // hot (local)
+    ) { settings, user, language, (logoutDialog, timeoutDialog, languageDialog) ->
         SettingsViewState.Success(
             user = user,
             themeMode = settings.themeMode,
@@ -45,6 +53,8 @@ class SettingsViewModel(
             showLogoutDialog = logoutDialog,
             sessionTimeout = settings.sessionTimeout,
             showSessionTimeoutDialog = timeoutDialog,
+            language = language,
+            showLanguageDialog = languageDialog,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsViewState.Loading)
 
@@ -64,6 +74,13 @@ class SettingsViewModel(
             is SettingsViewAction.OnSessionTimeoutSelected -> viewModelScope.launch {
                 showSessionTimeoutDialog.value = false
                 setSessionTimeout(action.timeout) // SessionTimeoutMonitor picks it up from DataStore.
+            }
+            SettingsViewAction.OnLanguageClicked -> showLanguageDialog.value = true
+            SettingsViewAction.OnLanguageDismissed -> showLanguageDialog.value = false
+            is SettingsViewAction.OnLanguageSelected -> {
+                showLanguageDialog.value = false
+                // Covers the screen, applies the language (the Activity recreates underneath), then reveals.
+                languageSwitch.switchTo(action.language)
             }
         }
     }

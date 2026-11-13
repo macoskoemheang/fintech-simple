@@ -9,8 +9,6 @@ import com.example.m3showcase.core.domain.usecase.ObserveSettingsUseCase
 import com.example.m3showcase.core.domain.usecase.ResolveEventThemeUseCase
 import com.example.m3showcase.core.domain.usecase.SetEventThemeUseCase
 import com.example.m3showcase.core.domain.usecase.SetThemeModeUseCase
-import com.example.m3showcase.core.ui.displayName
-import com.example.m3showcase.core.ui.holidayLabel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -36,12 +34,11 @@ class ThemeViewModel(
     // The schedule only changes by date, so it's read once per screen visit.
     private val live = getActiveFestival()?.theme
     private val schedule = getFestivalSchedule()
-    private val options = listOf(EventThemeOption(EventTheme.Default, dateLabel = null, isLive = false)) +
+    private val options = listOf(EventThemeOption(EventTheme.Default, window = null, isLive = false)) +
         EventTheme.festivals.map { theme ->
-            EventThemeOption(theme, schedule[theme]?.holidayLabel(), isLive = theme == live)
+            EventThemeOption(theme, schedule[theme], isLive = theme == live)
         }
-    private val nextLabel = schedule.values.minByOrNull { it.showFrom }
-        ?.let { "${it.theme.displayName} · ${it.holidayLabel()}" }
+    private val nextFestival = schedule.values.minByOrNull { it.showFrom }
 
     // Cold DataStore flow → hot StateFlow. The selection on screen always shows what
     // is saved, so it can't drift from the theme the app is actually using.
@@ -54,7 +51,7 @@ class ThemeViewModel(
                 isAutoEvent = event == EventTheme.Auto,
                 appliedEvent = resolveEventTheme(event),
                 eventOptions = options,
-                nextFestivalLabel = nextLabel,
+                nextFestival = nextFestival,
             )
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ThemeViewState.Loading)

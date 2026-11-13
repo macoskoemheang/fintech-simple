@@ -11,10 +11,19 @@ sealed class BankError(message: String) : Exception(message) {
     data object InsufficientFunds : BankError("Insufficient funds")
     data object AccountNotFound : BankError("Account not found")
     data object NotFound : BankError("Not found")
-    data class Validation(val field: Field, val reason: String) : BankError(reason)
+    /**
+     * A broken input rule. It carries a [rule] code, not text: wording and translation belong to the UI.
+     * [limit] is the number the rule talks about (digits, decimal places), when there is one.
+     */
+    data class Validation(val field: Field, val rule: Rule, val limit: Int? = null) : BankError("$field: $rule")
     data class Unknown(val causeMessage: String?) : BankError(causeMessage ?: "Something went wrong")
 
     enum class Field { Pin, AccountNumber, Amount, FromAccount }
+
+    enum class Rule {
+        Required, WrongLength, SameAccount, CurrencyMismatch,
+        NotANumber, NotPositive, TooManyDecimals, AboveLimit, InsufficientBalance,
+    }
 }
 
 /** Unwraps any throwable into a [BankError]. */

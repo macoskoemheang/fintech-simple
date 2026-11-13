@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.m3showcase.feature.home.presentation.QuickAction
+import androidx.compose.ui.res.stringResource
 
 /** ABA-style services grid: 4 per row, each icon in its own Expressive shape. */
 @Composable
@@ -81,12 +82,12 @@ private data class QuickActionUi(val label: String, val icon: ImageVector, val s
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun QuickAction.ui(): QuickActionUi = when (this) {
-    QuickAction.Accounts -> QuickActionUi("Accounts", Icons.Rounded.AccountBalanceWallet, MaterialShapes.Cookie9Sided.toShape())
-    QuickAction.Transfer -> QuickActionUi("Transfers", Icons.Rounded.SwapHoriz, MaterialShapes.Sunny.toShape())
-    QuickAction.Receive -> QuickActionUi("Receive QR", Icons.Rounded.QrCode2, MaterialShapes.Square.toShape())
-    QuickAction.Payments -> QuickActionUi("Payments", Icons.Rounded.RequestQuote, MaterialShapes.Clover4Leaf.toShape())
-    QuickAction.Cards -> QuickActionUi("Cards", Icons.Rounded.CreditCard, MaterialShapes.Pill.toShape())
-    QuickAction.Deposits -> QuickActionUi("Deposits", Icons.Rounded.Savings, MaterialShapes.Cookie6Sided.toShape())
-    QuickAction.Loans -> QuickActionUi("Loans", Icons.Rounded.AccountBalance, MaterialShapes.Gem.toShape())
-    QuickAction.Locator -> QuickActionUi("Locator", Icons.Rounded.LocationOn, MaterialShapes.Puffy.toShape())
+    QuickAction.Accounts -> QuickActionUi(stringResource(labelRes), Icons.Rounded.AccountBalanceWallet, MaterialShapes.Cookie9Sided.toShape())
+    QuickAction.Transfer -> QuickActionUi(stringResource(labelRes), Icons.Rounded.SwapHoriz, MaterialShapes.Sunny.toShape())
+    QuickAction.Receive -> QuickActionUi(stringResource(labelRes), Icons.Rounded.QrCode2, MaterialShapes.Square.toShape())
+    QuickAction.Payments -> QuickActionUi(stringResource(labelRes), Icons.Rounded.RequestQuote, MaterialShapes.Clover4Leaf.toShape())
+    QuickAction.Cards -> QuickActionUi(stringResource(labelRes), Icons.Rounded.CreditCard, MaterialShapes.Pill.toShape())
+    QuickAction.Deposits -> QuickActionUi(stringResource(labelRes), Icons.Rounded.Savings, MaterialShapes.Cookie6Sided.toShape())
+    QuickAction.Loans -> QuickActionUi(stringResource(labelRes), Icons.Rounded.AccountBalance, MaterialShapes.Gem.toShape())
+    QuickAction.Locator -> QuickActionUi(stringResource(labelRes), Icons.Rounded.LocationOn, MaterialShapes.Puffy.toShape())
 }

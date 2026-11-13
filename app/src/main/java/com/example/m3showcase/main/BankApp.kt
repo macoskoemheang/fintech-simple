@@ -42,12 +42,24 @@ import com.example.m3showcase.feature.accounts.presentation.history.TransactionH
 import com.example.m3showcase.feature.accounts.presentation.list.AccountsRoute
 import com.example.m3showcase.feature.auth.presentation.LoginRoute
 import com.example.m3showcase.feature.home.presentation.HomeRoute
+import com.example.m3showcase.feature.notifications.presentation.NotificationsRoute
 import com.example.m3showcase.feature.receipt.presentation.ReceiptRoute
-import com.example.m3showcase.feature.report.presentation.TriggerReportRoute
 import com.example.m3showcase.feature.settings.presentation.SettingsRoute
 import com.example.m3showcase.feature.settings.presentation.theme.ThemeRoute
 import com.example.m3showcase.feature.showcase.presentation.ShowcaseRoute
 import com.example.m3showcase.feature.transfer.presentation.TransferRoute
+import androidx.compose.ui.res.stringResource
+import com.example.m3showcase.feature.home.presentation.QuickAction
+import com.example.m3showcase.feature.receive.presentation.ReceiveRoute
+import com.example.m3showcase.feature.receive.presentation.detail.ReceiveQrDetailRoute
+import com.example.m3showcase.feature.payments.presentation.list.PaymentsRoute
+import com.example.m3showcase.feature.payments.presentation.detail.PaymentDetailRoute
+import com.example.m3showcase.feature.deposits.presentation.list.DepositsRoute
+import com.example.m3showcase.feature.deposits.presentation.detail.DepositDetailRoute
+import com.example.m3showcase.feature.loans.presentation.list.LoansRoute
+import com.example.m3showcase.feature.loans.presentation.detail.LoanDetailRoute
+import com.example.m3showcase.feature.report.presentation.LoanReportRoute
+import com.example.m3showcase.feature.locator.presentation.LocatorRoute
 
 /** Tabs fade into each other instead of sliding like pushed screens. */
 private val TabTransition =
@@ -98,7 +110,7 @@ fun BankApp(isLoggedIn: Boolean, bannerState: ConnectivityBannerState) {
                             selected = selected,
                             onClick = { navigator.selectTopLevel(tab.destination) },
                             icon = { Icon(if (selected) tab.selectedIcon else tab.unselectedIcon, contentDescription = null) },
-                            label = { Text(tab.label) },
+                            label = { Text(stringResource(tab.labelRes)) },
                         )
                     }
                 }
@@ -133,6 +145,16 @@ fun BankApp(isLoggedIn: Boolean, bannerState: ConnectivityBannerState) {
                                 onOpenReceive = { navigator.selectTopLevel(Destination.Receive) },
                                 onOpenTransactionHistory = { navigator.navigate(Destination.TransactionHistory(it)) },
                                 onOpenReceipt = { navigator.navigate(Destination.Receipt(it, isNewTransfer = false)) },
+                                onOpenNotifications = { navigator.navigate(Destination.Notifications) },
+                                onOpenService = { action ->
+                                    when (action) {
+                                        QuickAction.Payments -> navigator.navigate(Destination.Payments)
+                                        QuickAction.Deposits -> navigator.navigate(Destination.Deposits)
+                                        QuickAction.Loans -> navigator.navigate(Destination.Loans)
+                                        QuickAction.Locator -> navigator.navigate(Destination.Locator)
+                                        else -> Unit // The others have their own events.
+                                    }
+                                },
                             )
                         }
                         entry<Destination.Accounts>(metadata = TabTransition) {
@@ -141,13 +163,35 @@ fun BankApp(isLoggedIn: Boolean, bannerState: ConnectivityBannerState) {
                                 onOpenTransfer = { navigator.navigate(Destination.Transfer(fromAccountId = it)) },
                             )
                         }
-                        entry<Destination.Receive>(metadata = TabTransition) { TriggerReportRoute() }
+                        entry<Destination.Receive>(metadata = TabTransition) {
+                            ReceiveRoute(onOpenDetail = { navigator.navigate(Destination.ReceiveQrDetail(it)) })
+                        }
+                        entry<Destination.ReceiveQrDetail> { key -> ReceiveQrDetailRoute(key.accountNumber, onBack = navigator::goBack) }
+                        entry<Destination.Payments> {
+                            PaymentsRoute(onBack = navigator::goBack, onOpenPayment = { navigator.navigate(Destination.PaymentDetail(it)) })
+                        }
+                        entry<Destination.PaymentDetail> { key -> PaymentDetailRoute(key.paymentId, onBack = navigator::goBack) }
+                        entry<Destination.Deposits> {
+                            DepositsRoute(onBack = navigator::goBack, onOpenDeposit = { navigator.navigate(Destination.DepositDetail(it)) })
+                        }
+                        entry<Destination.DepositDetail> { key -> DepositDetailRoute(key.depositId, onBack = navigator::goBack) }
+                        entry<Destination.Loans> {
+                            LoansRoute(
+                                onBack = navigator::goBack,
+                                onOpenLoan = { navigator.navigate(Destination.LoanDetail(it)) },
+                                onOpenReport = { navigator.navigate(Destination.LoanReport) },
+                            )
+                        }
+                        entry<Destination.LoanDetail> { key -> LoanDetailRoute(key.loanId, onBack = navigator::goBack) }
+                        entry<Destination.LoanReport> { LoanReportRoute(onBack = navigator::goBack) }
+                        entry<Destination.Locator> { LocatorRoute(onBack = navigator::goBack) }
                         entry<Destination.More>(metadata = TabTransition) {
                             SettingsRoute(
                                 onOpenTheme = { navigator.navigate(Destination.Theme) },
                                 onOpenShowcase = { navigator.navigate(Destination.Showcase) },
                             )
                         }
+                        entry<Destination.Notifications> { NotificationsRoute(onBack = navigator::goBack) }
                         entry<Destination.Theme> { ThemeRoute(onBack = navigator::goBack) }
 
                         entry<Destination.TransactionHistory> { key ->

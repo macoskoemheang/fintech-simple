@@ -3,6 +3,7 @@ package com.example.m3showcase.feature.transfer.domain.usecase
 import com.example.m3showcase.core.domain.model.Account
 import com.example.m3showcase.core.domain.model.BankError
 import com.example.m3showcase.core.domain.model.BankError.Field
+import com.example.m3showcase.core.domain.model.BankError.Rule
 import com.example.m3showcase.core.domain.model.CurrencyCode
 import com.example.m3showcase.core.domain.model.Money
 import com.example.m3showcase.core.domain.model.TransferRequest
@@ -17,24 +18,24 @@ class ValidateTransferUseCase {
         amountText: String,
         note: String,
     ): Result<TransferRequest> {
-        if (from == null) return invalid(Field.FromAccount, "Choose an account to send from")
+        if (from == null) return invalid(Field.FromAccount, Rule.Required)
 
         val recipient = toAccountNumber.filter(Char::isDigit)
         if (recipient.length != ACCOUNT_NUMBER_LENGTH) {
-            return invalid(Field.AccountNumber, "Account number must be $ACCOUNT_NUMBER_LENGTH digits")
+            return invalid(Field.AccountNumber, Rule.WrongLength, ACCOUNT_NUMBER_LENGTH)
         }
-        if (recipient == from.number) return invalid(Field.AccountNumber, "You can't transfer to the same account")
+        if (recipient == from.number) return invalid(Field.AccountNumber, Rule.SameAccount)
 
         val currency = from.balance.currency
         val decimal = amountText.toBigDecimalOrNull()
-            ?: return invalid(Field.Amount, "Enter a valid amount")
-        if (decimal.signum() <= 0) return invalid(Field.Amount, "Amount must be greater than zero")
+            ?: return invalid(Field.Amount, Rule.NotANumber)
+        if (decimal.signum() <= 0) return invalid(Field.Amount, Rule.NotPositive)
         if (decimal.stripTrailingZeros().scale() > currency.fractionDigits) {
-            return invalid(Field.Amount, "Up to ${currency.fractionDigits} decimal places for ${currency.name}")
+            return invalid(Field.Amount, Rule.TooManyDecimals, currency.fractionDigits)
         }
         val minor = decimal.movePointRight(currency.fractionDigits).toLong()
-        if (minor > maxPerTransaction(currency)) return invalid(Field.Amount, "Above the per-transaction limit")
-        if (minor > from.balance.minor) return invalid(Field.Amount, "Insufficient balance")
+        if (minor > maxPerTransaction(currency)) return invalid(Field.Amount, Rule.AboveLimit)
+        if (minor > from.balance.minor) return invalid(Field.Amount, Rule.InsufficientBalance)
 
         return Result.success(
             TransferRequest(
@@ -46,8 +47,8 @@ class ValidateTransferUseCase {
         )
     }
 
-    private fun invalid(field: Field, reason: String): Result<TransferRequest> =
-        Result.failure(BankError.Validation(field, reason))
+    private fun invalid(field: Field, rule: Rule, limit: Int? = null): Result<TransferRequest> =
+        Result.failure(BankError.Validation(field, rule, limit))
 
     private fun maxPerTransaction(currency: CurrencyCode): Long = when (currency) {
         CurrencyCode.USD -> BigDecimal(10_000).movePointRight(2).toLong()

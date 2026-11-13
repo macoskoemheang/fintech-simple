@@ -8,7 +8,7 @@ class LoginWithPinUseCase(private val repository: AuthRepository) {
 
     suspend operator fun invoke(pin: String): Result<UserProfile> {
         if (pin.length != PIN_LENGTH || !pin.all(Char::isDigit)) {
-            return Result.failure(BankError.Validation(BankError.Field.Pin, "PIN must be $PIN_LENGTH digits"))
+            return Result.failure(BankError.Validation(BankError.Field.Pin, BankError.Rule.WrongLength, PIN_LENGTH))
         }
         return repository.login(pin)
     }

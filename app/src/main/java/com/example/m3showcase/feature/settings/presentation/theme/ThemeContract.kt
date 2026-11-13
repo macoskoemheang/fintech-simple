@@ -3,6 +3,7 @@ package com.example.m3showcase.feature.settings.presentation.theme
 import androidx.compose.runtime.Immutable
 import com.example.m3showcase.core.domain.model.EventTheme
 import com.example.m3showcase.core.domain.model.ThemeMode
+import com.example.m3showcase.core.domain.model.FestivalWindow
 
 @Immutable
 sealed interface ThemeViewState {
@@ -14,16 +15,16 @@ sealed interface ThemeViewState {
         /** The skin on screen right now (Auto already resolved). */
         val appliedEvent: EventTheme,
         val eventOptions: List<EventThemeOption>,
-        /** "Water Festival · 23–25 Nov 2026", for the Auto row. Null when nothing is scheduled. */
-        val nextFestivalLabel: String?,
+        /** The next scheduled festival, for the Auto row. Null when nothing is scheduled. */
+        val nextFestival: FestivalWindow?,
     ) : ThemeViewState
 }
 
 @Immutable
 data class EventThemeOption(
     val theme: EventTheme,
-    /** Next holiday dates, e.g. "23–25 Nov 2026". Null for Classic or unknown years. */
-    val dateLabel: String?,
+    /** Next holiday dates. Null for Classic or unknown years. The UI formats them in the app's language. */
+    val window: FestivalWindow?,
     /** In season today. */
     val isLive: Boolean,
 )

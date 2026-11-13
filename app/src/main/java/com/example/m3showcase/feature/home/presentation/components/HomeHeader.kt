@@ -44,11 +44,13 @@ import androidx.compose.ui.unit.dp
 import com.example.m3showcase.core.common.MoneyFormatter
 import com.example.m3showcase.core.designsystem.BankTheme
 import com.example.m3showcase.core.designsystem.FestivalHeroArt
-import com.example.m3showcase.core.ui.greeting
+import com.example.m3showcase.core.ui.greetingRes
 import com.example.m3showcase.core.domain.model.Account
 import com.example.m3showcase.core.domain.model.UserProfile
 import com.example.m3showcase.core.ui.formatAccountNumber
 import java.util.Calendar
+import androidx.compose.ui.res.stringResource
+import com.example.m3showcase.R
 
 /** Navy hero: greeting plus a swipeable card per account. */
 @Composable
@@ -119,7 +121,7 @@ private fun Greeting(user: UserProfile?, onNotificationsClick: () -> Unit) {
             }
         }
         Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
-            Text(BankTheme.eventTheme.greeting ?: greetingForNow(), style = MaterialTheme.typography.bodySmall, color = BankTheme.colors.onHeroVariant)
+            Text(BankTheme.eventTheme.greetingRes?.let { stringResource(it) } ?: greetingForNow(), style = MaterialTheme.typography.bodySmall, color = BankTheme.colors.onHeroVariant)
             Text(
                 user?.fullName.orEmpty(),
                 style = MaterialTheme.typography.titleMedium,
@@ -128,7 +130,7 @@ private fun Greeting(user: UserProfile?, onNotificationsClick: () -> Unit) {
             )
         }
         IconButton(onClick = onNotificationsClick) {
-            Icon(Icons.Rounded.NotificationsNone, contentDescription = "Notifications", tint = BankTheme.colors.onHero)
+            Icon(Icons.Rounded.NotificationsNone, contentDescription = stringResource(R.string.notifications_title), tint = BankTheme.colors.onHero)
         }
     }
 }
@@ -154,7 +156,7 @@ private fun AccountCard(
                         Text(account.name, style = MaterialTheme.typography.titleSmall)
                         if (account.isDefault) {
                             Text(
-                                "DEFAULT",
+                                stringResource(R.string.account_default).uppercase(),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = Color(0xFF00313F),
                                 modifier = Modifier
@@ -189,7 +191,7 @@ private fun AccountCard(
                 IconButton(onClick = onToggleBalance) {
                     Icon(
                         if (isBalanceHidden) Icons.Rounded.VisibilityOff else Icons.Rounded.Visibility,
-                        contentDescription = if (isBalanceHidden) "Show balance" else "Hide balance",
+                        contentDescription = stringResource(if (isBalanceHidden) R.string.home_show_balance else R.string.home_hide_balance),
                     )
                 }
             }
@@ -218,8 +220,11 @@ private fun PagerDots(count: Int, current: Int) {
     }
 }
 
-private fun greetingForNow(): String = when (Calendar.getInstance().get(Calendar.HOUR_OF_DAY)) {
-    in 5..11 -> "Good morning"
-    in 12..17 -> "Good afternoon"
-    else -> "Good evening"
-}
+@Composable
+private fun greetingForNow(): String = stringResource(
+    when (Calendar.getInstance().get(Calendar.HOUR_OF_DAY)) {
+        in 5..11 -> R.string.home_good_morning
+        in 12..17 -> R.string.home_good_afternoon
+        else -> R.string.home_good_evening
+    },
+)

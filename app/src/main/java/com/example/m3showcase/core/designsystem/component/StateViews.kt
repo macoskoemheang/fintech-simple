@@ -27,6 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.example.m3showcase.R
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -45,13 +47,13 @@ fun ErrorState(
 ) {
     MessageState(
         icon = if (isOffline) Icons.Outlined.CloudOff else Icons.Outlined.ErrorOutline,
-        title = if (isOffline) "You're offline" else "Something went wrong",
+        title = stringResource(if (isOffline) R.string.state_offline_title else R.string.state_error_title),
         message = message,
         modifier = modifier,
         action = {
             Button(onClick = onRetry, shapes = ButtonDefaults.shapes()) {
                 Icon(Icons.Rounded.Refresh, contentDescription = null)
-                Text("Try again", Modifier.padding(start = 8.dp))
+                Text(stringResource(R.string.action_try_again), Modifier.padding(start = 8.dp))
             }
         },
     )

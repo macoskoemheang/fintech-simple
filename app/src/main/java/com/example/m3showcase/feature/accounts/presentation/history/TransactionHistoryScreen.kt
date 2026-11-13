@@ -44,6 +44,10 @@ import com.example.m3showcase.core.designsystem.component.TransactionItem
 import com.example.m3showcase.feature.accounts.domain.model.TransactionFilter
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
+import androidx.compose.ui.res.stringResource
+import com.example.m3showcase.R
+import com.example.m3showcase.core.ui.asString
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun TransactionHistoryRoute(
@@ -56,10 +60,11 @@ fun TransactionHistoryRoute(
 ) {
     val state by viewModel.viewState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
-                is TransactionHistoryEvent.ShowMessage -> snackbarHostState.showSnackbar(event.text)
+                is TransactionHistoryEvent.ShowMessage -> snackbarHostState.showSnackbar(event.text.asString(context))
                 is TransactionHistoryEvent.OpenReceipt -> onOpenReceipt(event.transactionId)
                 TransactionHistoryEvent.NavigateBack -> onBack()
             }
@@ -83,7 +88,7 @@ fun TransactionHistoryScreen(
                 colors = bankTopAppBarColors(),
                 title = {
                     Column {
-                        Text(account?.name ?: "All transactions")
+                        Text(account?.name ?: stringResource(R.string.history_all_transactions))
                         if (account != null) {
                             val hidden = (state as TransactionHistoryViewState.Success).history.isBalanceHidden
                             Text(
@@ -96,7 +101,7 @@ fun TransactionHistoryScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = { onAction(TransactionHistoryViewAction.OnBackClicked) }) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
             )
@@ -109,13 +114,13 @@ fun TransactionHistoryScreen(
                 when (state) {
                     is TransactionHistoryViewState.Loading -> LoadingState()
                     is TransactionHistoryViewState.Error ->
-                        ErrorState(state.message, { onAction(TransactionHistoryViewAction.OnRefresh) }, isOffline = state.isOffline)
+                        ErrorState(state.message.asString(), { onAction(TransactionHistoryViewAction.OnRefresh) }, isOffline = state.isOffline)
                     is TransactionHistoryViewState.Success -> PullToRefreshBox(
                         isRefreshing = state.isRefreshing,
                         onRefresh = { onAction(TransactionHistoryViewAction.OnRefresh) },
                     ) {
                         if (state.history.transactions.isEmpty()) {
-                            EmptyState("Nothing here", "No transactions match this filter.")
+                            EmptyState(stringResource(R.string.history_empty_title), stringResource(R.string.history_empty_message))
                         } else {
                             LazyColumn(Modifier.fillMaxSize()) {
                                 items(state.history.transactions, key = { it.id }) { tx ->
@@ -157,9 +162,9 @@ private fun FilterGroup(selected: TransactionFilter, onSelect: (TransactionFilte
             ) {
                 Text(
                     when (filter) {
-                        TransactionFilter.All -> "All"
-                        TransactionFilter.MoneyIn -> "Money in"
-                        TransactionFilter.MoneyOut -> "Money out"
+                        TransactionFilter.All -> stringResource(R.string.filter_all)
+                        TransactionFilter.MoneyIn -> stringResource(R.string.history_money_in)
+                        TransactionFilter.MoneyOut -> stringResource(R.string.history_money_out)
                     }
                 )
             }

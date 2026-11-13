@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.m3showcase.core.common.MoneyFormatter
 import com.example.m3showcase.core.domain.usecase.GetTransactionUseCase
-import com.example.m3showcase.core.ui.DateFormats
 import com.example.m3showcase.core.ui.toUserMessage
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -36,12 +35,7 @@ class ReceiptViewModel(
             ReceiptViewAction.OnRetry -> load()
             ReceiptViewAction.OnShareClicked -> {
                 val tx = (_viewState.value as? ReceiptViewState.Success)?.transaction ?: return
-                _events.trySend(
-                    ReceiptEvent.Share(
-                        "${tx.title}\n${MoneyFormatter.format(tx.amount, withSign = true)}\n" +
-                            "${DateFormats.full(tx.timestampMillis)}\nRef: ${tx.id.take(12).uppercase()}"
-                    )
-                )
+                _events.trySend(ReceiptEvent.Share(tx))
             }
         }
     }

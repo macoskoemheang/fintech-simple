@@ -74,9 +74,15 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.m3showcase.core.designsystem.FestivalHeroArt
 import com.example.m3showcase.core.domain.model.EventTheme
-import com.example.m3showcase.core.ui.displayName
 import com.example.m3showcase.core.ui.khmerName
 import org.koin.androidx.compose.koinViewModel
+import androidx.compose.ui.res.stringResource
+import com.example.m3showcase.R
+import androidx.compose.ui.platform.LocalContext
+import com.example.m3showcase.core.ui.appLocale
+import com.example.m3showcase.core.ui.holidayLabel
+import com.example.m3showcase.core.ui.nameRes
+import com.example.m3showcase.core.ui.labelRes
 
 @Composable
 fun ThemeRoute(
@@ -102,10 +108,10 @@ fun ThemeScreen(state: ThemeViewState, onAction: (ThemeViewAction) -> Unit) {
         topBar = {
             TopAppBar(
                 colors = bankTopAppBarColors(),
-                title = { Text("Theme") },
+                title = { Text(stringResource(R.string.theme_title)) },
                 navigationIcon = {
                     IconButton(onClick = { onAction(ThemeViewAction.OnBackClicked) }) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
             )
@@ -128,7 +134,7 @@ private fun ThemeContent(state: ThemeViewState.Success, onAction: (ThemeViewActi
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
         Text(
-            "Choose how the app looks. Changes apply right away.",
+            stringResource(R.string.theme_intro),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -159,7 +165,7 @@ private fun ThemeContent(state: ThemeViewState.Success, onAction: (ThemeViewActi
 private fun FestivalSection(state: ThemeViewState.Success, onAction: (ThemeViewAction) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
-            "Festival themes",
+            stringResource(R.string.theme_festival_section),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
         )
@@ -176,11 +182,13 @@ private fun FestivalSection(state: ThemeViewState.Success, onAction: (ThemeViewA
                     onValueChange = { onAction(ThemeViewAction.OnAutoEventToggled(it)) },
                 ),
                 leadingContent = { Icon(Icons.Rounded.Celebration, null, tint = MaterialTheme.colorScheme.primary) },
-                headlineContent = { Text("Match the season") },
+                headlineContent = { Text(stringResource(R.string.theme_match_season)) },
                 supportingContent = {
+                    val locale = LocalContext.current.appLocale()
                     Text(
-                        state.nextFestivalLabel?.let { "Switches on for each festival. Next: $it" }
-                            ?: "Switches on for each festival.",
+                        state.nextFestival?.let {
+                            stringResource(R.string.theme_match_season_next, stringResource(it.theme.nameRes), it.holidayLabel(locale))
+                        } ?: stringResource(R.string.theme_match_season_desc),
                     )
                 },
                 // The row handles the toggle, so the Switch itself isn't separately clickable.
@@ -252,7 +260,7 @@ private fun FestivalCard(
                             modifier = Modifier.align(Alignment.BottomStart).padding(8.dp),
                         ) {
                             Text(
-                                "Live now",
+                                stringResource(R.string.theme_live_now),
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF1F1300),
@@ -269,7 +277,7 @@ private fun FestivalCard(
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     if (isAuto) Icons.Rounded.AutoAwesome else Icons.Rounded.Check,
-                                    contentDescription = if (isAuto) "Chosen automatically" else null,
+                                    contentDescription = if (isAuto) stringResource(R.string.theme_chosen_automatically) else null,
                                     modifier = Modifier.size(16.dp),
                                     tint = MaterialTheme.colorScheme.onPrimary,
                                 )
@@ -279,8 +287,9 @@ private fun FestivalCard(
                 }
             }
             Column(Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
+                val name = stringResource(option.theme.nameRes)
                 Text(
-                    option.theme.displayName,
+                    name,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
                     color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
@@ -288,13 +297,13 @@ private fun FestivalCard(
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    option.theme.khmerName ?: "Everyday look",
+                    option.theme.khmerName?.takeIf { it != name } ?: stringResource(R.string.theme_everyday_look),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                 )
-                option.dateLabel?.let {
-                    Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                option.window?.let {
+                    Text(it.holidayLabel(LocalContext.current.appLocale()), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
@@ -356,7 +365,7 @@ private fun ThemeOptionCard(
         }
         Spacer(Modifier.height(10.dp))
         Text(
-            mode.name,
+            stringResource(mode.labelRes),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
             color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
@@ -462,9 +471,9 @@ private fun SystemInfoCard(selected: ThemeMode) {
             Icon(Icons.Rounded.Info, null, tint = MaterialTheme.colorScheme.primary)
             Text(
                 text = when (selected) {
-                    ThemeMode.System -> "Following your device. It's in ${if (systemDark) "dark" else "light"} mode right now."
-                    ThemeMode.Light -> "Always light, whatever your device setting."
-                    ThemeMode.Dark -> "Always dark. Easier on the eyes at night."
+                    ThemeMode.System -> stringResource(if (systemDark) R.string.theme_system_desc_dark else R.string.theme_system_desc_light)
+                    ThemeMode.Light -> stringResource(R.string.theme_light_desc)
+                    ThemeMode.Dark -> stringResource(R.string.theme_dark_desc)
                 },
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Start,
@@ -484,8 +493,8 @@ private fun ThemeScreenPreview() {
                 isAutoEvent = true,
                 appliedEvent = EventTheme.WaterFestival,
                 eventOptions = listOf(EventThemeOption(EventTheme.Default, null, false)) +
-                    EventTheme.festivals.map { EventThemeOption(it, "23–25 Nov 2026", it == EventTheme.WaterFestival) },
-                nextFestivalLabel = "Water Festival · 23–25 Nov 2026",
+                    EventTheme.festivals.map { EventThemeOption(it, null, it == EventTheme.WaterFestival) },
+                nextFestival = null,
             ),
         ) {}
     }

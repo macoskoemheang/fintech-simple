@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Splash icon: a cyan disc with a white "N", 112dp wide on the 288dp splash canvas
+    (well inside the 192dp safe circle). On Android 12+ the disc pops in and the letter fades in.
+    BrandSplash.kt draws the same geometry, so the Compose intro continues from this frame.
+-->
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector
+            android:width="288dp"
+            android:height="288dp"
+            android:viewportWidth="288"
+            android:viewportHeight="288">
+            <group
+                android:name="mark"
+                android:pivotX="144"
+                android:pivotY="144">
+                <path
+                    android:name="disc"
+                    android:fillColor="@color/brand_cyan"
+                    android:pathData="M144,88 a56,56 0 1,1 0,112 a56,56 0 1,1 0,-112 Z" />
+                <path
+                    android:name="letter"
+                    android:fillColor="@color/white"
+                    android:pathData="M123,170 L123,118 L135,118 L153,148 L153,118 L165,118 L165,170 L153,170 L135,140 L135,170 Z" />
+            </group>
+        </vector>
+    </aapt:attr>
+
+    <target android:name="mark">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="500"
+                    android:interpolator="@android:interpolator/overshoot"
+                    android:propertyName="scaleX"
+                    android:valueFrom="0.6"
+                    android:valueTo="1" />
+                <objectAnimator
+                    android:duration="500"
+                    android:interpolator="@android:interpolator/overshoot"
+                    android:propertyName="scaleY"
+                    android:valueFrom="0.6"
+                    android:valueTo="1" />
+            </set>
+        </aapt:attr>
+    </target>
+
+    <target android:name="letter">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="300"
+                android:propertyName="fillAlpha"
+                android:startOffset="150"
+                android:valueFrom="0"
+                android:valueTo="1" />
+        </aapt:attr>
+    </target>
+</animated-vector>

@@ -30,7 +30,7 @@ import com.example.m3showcase.core.common.MoneyFormatter
 import com.example.m3showcase.core.designsystem.BankTheme
 import com.example.m3showcase.core.domain.model.Transaction
 import com.example.m3showcase.core.domain.model.TransactionCategory
-import com.example.m3showcase.core.ui.DateFormats
+import com.example.m3showcase.core.ui.relativeDayText
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -58,7 +58,7 @@ fun TransactionItem(
         headlineContent = { Text(transaction.title, maxLines = 1) },
         supportingContent = {
             Text(
-                "${transaction.counterparty} · ${DateFormats.relativeDay(transaction.timestampMillis)}",
+                "${transaction.counterparty} · ${relativeDayText(transaction.timestampMillis)}",
                 maxLines = 1,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

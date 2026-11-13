@@ -62,17 +62,22 @@ import com.example.m3showcase.core.designsystem.FestivalHeroArt
 import com.example.m3showcase.feature.auth.domain.usecase.LoginWithPinUseCase
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.roundToInt
+import androidx.compose.ui.res.stringResource
+import com.example.m3showcase.R
+import com.example.m3showcase.core.ui.asString
+import androidx.compose.ui.platform.LocalContext
 
 /** Stateful entry: owns the ViewModel and collects one-time events. */
 @Composable
 fun LoginRoute(viewModel: LoginViewModel = koinViewModel()) {
+    val context = LocalContext.current
     val state by viewModel.viewState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
-                is LoginEvent.ShowMessage -> snackbarHostState.showSnackbar(event.text)
+                is LoginEvent.ShowMessage -> snackbarHostState.showSnackbar(event.text.asString(context))
             }
         }
     }
@@ -101,13 +106,13 @@ fun LoginScreen(
             BrandMark()
             Spacer(Modifier.height(20.dp))
             Text(
-                "Welcome back",
+                stringResource(R.string.login_welcome),
                 style = MaterialTheme.typography.headlineSmall,
                 color = BankTheme.colors.onHero,
                 fontWeight = FontWeight.SemiBold,
             )
             Text(
-                "Enter your 4-digit PIN",
+                stringResource(R.string.login_enter_pin, LoginWithPinUseCase.PIN_LENGTH),
                 style = MaterialTheme.typography.bodyMedium,
                 color = BankTheme.colors.onHeroVariant,
             )
@@ -123,7 +128,7 @@ fun LoginScreen(
                 }
             }
             Text(
-                text = state.error.orEmpty(),
+                text = state.error?.asString().orEmpty(),
                 color = if (BankTheme.eventTheme.isFestival) Color(0xFFFFDAD6) else BrandColors.Coral,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(top = 12.dp).height(20.dp),
@@ -132,10 +137,10 @@ fun LoginScreen(
             Spacer(Modifier.weight(1f))
             PinPad(enabled = !state.isLoading, onAction = onAction)
             TextButton(onClick = { onAction(LoginViewAction.OnForgotPinClicked) }) {
-                Text("Forgot PIN?", color = BankTheme.colors.heroAccent)
+                Text(stringResource(R.string.login_forgot_pin), color = BankTheme.colors.heroAccent)
             }
             Text(
-                "Demo PIN: 1234",
+                stringResource(R.string.login_demo_pin, "1234"),
                 style = MaterialTheme.typography.labelSmall,
                 color = BankTheme.colors.onHeroVariant,
                 modifier = Modifier.padding(bottom = 12.dp),
@@ -217,7 +222,7 @@ private fun PinPad(enabled: Boolean, onAction: (LoginViewAction) -> Unit) {
             PinKey('0', enabled) { onKey(LoginViewAction.OnDigitClicked('0')) }
             Box(Modifier.size(76.dp), contentAlignment = Alignment.Center) {
                 IconButton(onClick = { onKey(LoginViewAction.OnDeleteClicked) }, enabled = enabled) {
-                    Icon(Icons.AutoMirrored.Rounded.Backspace, contentDescription = "Delete", tint = Color.White)
+                    Icon(Icons.AutoMirrored.Rounded.Backspace, contentDescription = stringResource(R.string.login_delete), tint = Color.White)
                 }
             }
         }

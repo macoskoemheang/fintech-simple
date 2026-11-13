@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.example.m3showcase.core.ui.UiText
+import com.example.m3showcase.R
 
 /**
  * Navigation after login is driven by the session (see MainViewModel), not by an
@@ -34,7 +36,7 @@ class LoginViewModel(
             is LoginViewAction.OnDigitClicked -> appendDigit(action.digit)
             LoginViewAction.OnDeleteClicked -> _viewState.update { it.copy(pin = it.pin.dropLast(1), error = null) }
             LoginViewAction.OnForgotPinClicked ->
-                _events.trySend(LoginEvent.ShowMessage("Visit any branch or call 023 000 000 to reset your PIN."))
+                _events.trySend(LoginEvent.ShowMessage(UiText.res(R.string.login_forgot_pin_help)))
         }
     }
 

@@ -10,6 +10,7 @@ import com.example.m3showcase.core.ui.holidayLabel
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
+import java.util.Locale
 
 class EventThemeUseCasesTest {
 
@@ -57,9 +58,9 @@ class EventThemeUseCasesTest {
     @Test
     fun `schedule rolls over to next year once a festival has passed`() {
         val schedule = GetFestivalScheduleUseCase(calendar) { CalendarDate(2026, 11, 11) }()
-        assertEquals("23–25 Nov 2026", schedule.getValue(EventTheme.WaterFestival).holidayLabel())
-        assertEquals("14–16 Apr 2027", schedule.getValue(EventTheme.KhmerNewYear).holidayLabel())
-        assertEquals("29 Sep – 1 Oct 2027", schedule.getValue(EventTheme.PchumBen).holidayLabel())
-        assertEquals("9 Nov 2027", schedule.getValue(EventTheme.IndependenceDay).holidayLabel())
+        assertEquals("23–25 Nov 2026", schedule.getValue(EventTheme.WaterFestival).holidayLabel(Locale.ENGLISH))
+        assertEquals("14–16 Apr 2027", schedule.getValue(EventTheme.KhmerNewYear).holidayLabel(Locale.ENGLISH))
+        assertEquals("29 Sep – 1 Oct 2027", schedule.getValue(EventTheme.PchumBen).holidayLabel(Locale.ENGLISH))
+        assertEquals("9 Nov 2027", schedule.getValue(EventTheme.IndependenceDay).holidayLabel(Locale.ENGLISH))
     }
 }

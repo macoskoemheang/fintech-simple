@@ -5,6 +5,7 @@ import com.example.m3showcase.core.domain.model.EventTheme
 import com.example.m3showcase.core.domain.model.SessionTimeout
 import com.example.m3showcase.core.domain.model.ThemeMode
 import com.example.m3showcase.core.domain.model.UserProfile
+import com.example.m3showcase.core.domain.model.AppLanguage
 
 @Immutable
 sealed interface SettingsViewState {
@@ -17,6 +18,8 @@ sealed interface SettingsViewState {
         val showLogoutDialog: Boolean,
         val sessionTimeout: SessionTimeout,
         val showSessionTimeoutDialog: Boolean,
+        val language: AppLanguage,
+        val showLanguageDialog: Boolean,
     ) : SettingsViewState
 }
 
@@ -30,6 +33,9 @@ sealed interface SettingsViewAction {
     data object OnSessionTimeoutClicked : SettingsViewAction
     data class OnSessionTimeoutSelected(val timeout: SessionTimeout) : SettingsViewAction
     data object OnSessionTimeoutDismissed : SettingsViewAction
+    data object OnLanguageClicked : SettingsViewAction
+    data class OnLanguageSelected(val language: AppLanguage) : SettingsViewAction
+    data object OnLanguageDismissed : SettingsViewAction
 }
 
 sealed interface SettingsEvent {

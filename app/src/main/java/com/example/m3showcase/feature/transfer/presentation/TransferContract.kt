@@ -3,6 +3,7 @@ package com.example.m3showcase.feature.transfer.presentation
 import androidx.compose.runtime.Immutable
 import com.example.m3showcase.core.domain.model.Account
 import com.example.m3showcase.core.domain.model.TransferRequest
+import com.example.m3showcase.core.ui.UiText
 
 @Immutable
 sealed interface TransferViewState {
@@ -15,8 +16,8 @@ sealed interface TransferViewState {
         val recipient: String,
         val amount: String,
         val note: String,
-        val recipientError: String?,
-        val amountError: String?,
+        val recipientError: UiText?,
+        val amountError: UiText?,
         val isOnline: Boolean,
         val isSubmitting: Boolean,
         /** Non-null shows the confirmation bottom sheet. */
@@ -39,7 +40,7 @@ sealed interface TransferViewAction {
 }
 
 sealed interface TransferEvent {
-    data class ShowMessage(val text: String) : TransferEvent
+    data class ShowMessage(val text: UiText) : TransferEvent
     data class OpenReceipt(val transactionId: String) : TransferEvent
     data object NavigateBack : TransferEvent
 }

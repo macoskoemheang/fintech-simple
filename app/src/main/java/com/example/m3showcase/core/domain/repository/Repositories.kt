@@ -1,6 +1,7 @@
 package com.example.m3showcase.core.domain.repository
 
 import com.example.m3showcase.core.domain.model.Account
+import com.example.m3showcase.core.domain.model.AppLanguage
 import com.example.m3showcase.core.domain.model.EventTheme
 import com.example.m3showcase.core.domain.model.SessionTimeout
 import com.example.m3showcase.core.domain.model.FestivalWindow
@@ -54,4 +55,14 @@ interface SettingsRepository {
 interface FestivalCalendarRepository {
     /** Windows for [year], sorted by start. Empty when the year isn't known yet. */
     fun windowsFor(year: Int): List<FestivalWindow>
+}
+
+/**
+ * The app's display language. Stored by the platform (per-app language), not in DataStore,
+ * so it also shows in system Settings > Apps > Language on Android 13+ and applies before
+ * the first frame. Setting it recreates the Activity in the new language.
+ */
+interface LanguageRepository {
+    val language: StateFlow<AppLanguage>
+    fun setLanguage(language: AppLanguage)
 }

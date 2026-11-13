@@ -56,11 +56,16 @@ import com.example.m3showcase.core.designsystem.BankTheme
 import com.example.m3showcase.core.designsystem.component.ErrorState
 import com.example.m3showcase.core.designsystem.component.LoadingState
 import com.example.m3showcase.core.domain.model.Transaction
-import com.example.m3showcase.core.ui.DateFormats
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import androidx.compose.ui.res.stringResource
+import com.example.m3showcase.R
+import com.example.m3showcase.core.ui.asString
+import com.example.m3showcase.core.ui.fullDateText
+import com.example.m3showcase.core.ui.DateFormats
+import android.content.Context
 
 @Composable
 fun ReceiptRoute(
@@ -79,8 +84,8 @@ fun ReceiptRoute(
                 ReceiptEvent.Close -> onClose()
                 is ReceiptEvent.Share -> context.startActivity(
                     Intent.createChooser(
-                        Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, event.text),
-                        "Share receipt",
+                        Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, event.transaction.shareText(context)),
+                        context.getString(R.string.receipt_share_chooser),
                     )
                 )
             }
@@ -97,16 +102,16 @@ fun ReceiptScreen(state: ReceiptViewState, onAction: (ReceiptViewAction) -> Unit
         topBar = {
             TopAppBar(
                 colors = bankTopAppBarColors(),
-                title = { Text(if ((state as? ReceiptViewState.Success)?.isNewTransfer == true) "" else "Transaction details") },
+                title = { Text(if ((state as? ReceiptViewState.Success)?.isNewTransfer == true) "" else stringResource(R.string.receipt_details_title)) },
                 navigationIcon = {
                     IconButton(onClick = { onAction(ReceiptViewAction.OnDoneClicked) }) {
-                        Icon(Icons.Rounded.Close, contentDescription = "Close")
+                        Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.action_close))
                     }
                 },
                 actions = {
                     if (state is ReceiptViewState.Success) {
                         IconButton(onClick = { onAction(ReceiptViewAction.OnShareClicked) }) {
-                            Icon(Icons.Rounded.Share, contentDescription = "Share")
+                            Icon(Icons.Rounded.Share, contentDescription = stringResource(R.string.action_share))
                         }
                     }
                 },
@@ -116,7 +121,7 @@ fun ReceiptScreen(state: ReceiptViewState, onAction: (ReceiptViewAction) -> Unit
         Box(Modifier.fillMaxSize().padding(padding)) {
             when (state) {
                 ReceiptViewState.Loading -> LoadingState()
-                is ReceiptViewState.Error -> ErrorState(state.message, { onAction(ReceiptViewAction.OnRetry) })
+                is ReceiptViewState.Error -> ErrorState(state.message.asString(), { onAction(ReceiptViewAction.OnRetry) })
                 is ReceiptViewState.Success -> ReceiptContent(state.transaction, state.isNewTransfer, onAction)
             }
         }
@@ -152,7 +157,7 @@ private fun ReceiptContent(tx: Transaction, isNewTransfer: Boolean, onAction: (R
         }
         Spacer(Modifier.height(8.dp))
         Text(
-            if (isNewTransfer) "Transfer successful" else tx.title,
+            if (isNewTransfer) stringResource(R.string.receipt_transfer_successful) else tx.title,
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.SemiBold,
         )
@@ -169,16 +174,16 @@ private fun ReceiptContent(tx: Transaction, isNewTransfer: Boolean, onAction: (R
             modifier = Modifier.fillMaxWidth(),
         ) {
             Column(Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
-                ReceiptRow("Description", tx.title)
+                ReceiptRow(stringResource(R.string.receipt_description), tx.title)
                 HorizontalDivider()
-                ReceiptRow(if (tx.isCredit) "From" else "To", tx.counterparty)
+                ReceiptRow(stringResource(if (tx.isCredit) R.string.transfer_from else R.string.transfer_to), tx.counterparty)
                 HorizontalDivider()
-                ReceiptRow("Date", DateFormats.full(tx.timestampMillis))
+                ReceiptRow(stringResource(R.string.receipt_date), fullDateText(tx.timestampMillis))
                 HorizontalDivider()
-                ReceiptRow("Reference", tx.id.take(12).uppercase())
+                ReceiptRow(stringResource(R.string.receipt_reference), tx.id.take(12).uppercase())
                 tx.note?.let {
                     HorizontalDivider()
-                    ReceiptRow("Remark", it)
+                    ReceiptRow(stringResource(R.string.transfer_remark), it)
                 }
             }
         }
@@ -189,12 +194,12 @@ private fun ReceiptContent(tx: Transaction, isNewTransfer: Boolean, onAction: (R
                 onClick = { onAction(ReceiptViewAction.OnShareClicked) },
                 shapes = ButtonDefaults.shapes(),
                 modifier = Modifier.weight(1f).height(ButtonDefaults.MediumContainerHeight),
-            ) { Text("Share") }
+            ) { Text(stringResource(R.string.action_share)) }
             Button(
                 onClick = { onAction(ReceiptViewAction.OnDoneClicked) },
                 shapes = ButtonDefaults.shapes(),
                 modifier = Modifier.weight(1f).height(ButtonDefaults.MediumContainerHeight),
-            ) { Text("Done") }
+            ) { Text(stringResource(R.string.action_done)) }
         }
     }
 }
@@ -206,3 +211,12 @@ private fun ReceiptRow(label: String, value: String) {
         Text(value, fontWeight = FontWeight.Medium)
     }
 }
+
+/** Plain-text receipt for the share sheet, in the app's language. */
+private fun Transaction.shareText(context: Context): String = context.getString(
+    R.string.receipt_share_text,
+    title,
+    MoneyFormatter.format(amount, withSign = true),
+    DateFormats.full(context, timestampMillis),
+    id.take(12).uppercase(),
+)

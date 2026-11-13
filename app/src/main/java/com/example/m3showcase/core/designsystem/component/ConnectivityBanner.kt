@@ -26,6 +26,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.m3showcase.core.designsystem.BrandColors
+import androidx.compose.ui.res.stringResource
+import com.example.m3showcase.R
 
 enum class ConnectivityBannerState { Hidden, Offline, BackOnline }
 
@@ -56,7 +58,7 @@ fun ConnectivityBanner(state: ConnectivityBannerState, modifier: Modifier = Modi
                     modifier = Modifier.size(18.dp),
                 )
                 Text(
-                    if (offline) "No internet connection" else "Back online",
+                    stringResource(if (offline) R.string.banner_offline else R.string.banner_back_online),
                     color = Color.White,
                     style = MaterialTheme.typography.labelLarge,
                 )

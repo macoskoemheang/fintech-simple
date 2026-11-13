@@ -24,7 +24,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,17 +35,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlin.random.Random
-
-@Immutable
-data class TriggerRow(
-    val no: Int,
-    val triggerType: String,
-    /** Count per day; index 0 = day 1. */
-    val dailyCounts: List<Int>,
-) {
-    val total: Int get() = dailyCounts.sum()
-}
+import com.example.m3showcase.feature.report.domain.model.TriggerRow
+import androidx.compose.ui.res.stringResource
+import com.example.m3showcase.R
 
 private val NoWidth = 44.dp
 private val TriggerTypeWidth = 170.dp
@@ -66,6 +57,8 @@ fun TriggerReportTable(
     rows: List<TriggerRow>,
     modifier: Modifier = Modifier,
     dayCount: Int = rows.firstOrNull()?.dailyCounts?.size ?: 30,
+    /** Header text for 1-based day column [day]; defaults to the number itself. */
+    dayLabel: (day: Int) -> String = { it.toString() },
     onCountClick: (row: TriggerRow, day: Int) -> Unit = { _, _ -> },
 ) {
     val horizontalScroll = rememberScrollState()
@@ -83,12 +76,12 @@ fun TriggerReportTable(
             scrollState = horizontalScroll,
             background = colors.surfaceContainer,
             fixed = {
-                HeaderCell("No.", NoWidth)
-                HeaderCell("Trigger Type", TriggerTypeWidth)
+                HeaderCell(stringResource(R.string.report_no), NoWidth)
+                HeaderCell(stringResource(R.string.report_trigger_type), TriggerTypeWidth)
             },
             scrollable = {
-                HeaderCell("Total", TotalWidth, center = true)
-                for (day in 1..dayCount) HeaderCell("$day", DayWidth, center = true)
+                HeaderCell(stringResource(R.string.report_total), TotalWidth, center = true)
+                for (day in 1..dayCount) HeaderCell(dayLabel(day), DayWidth, center = true)
             },
         )
         HorizontalDivider(color = colors.outlineVariant)
@@ -124,7 +117,7 @@ fun TriggerReportTable(
             background = colors.surfaceContainer,
             fixed = {
                 BodyCell("", NoWidth)
-                BodyCell("Total", TriggerTypeWidth, bold = true)
+                BodyCell(stringResource(R.string.report_total), TriggerTypeWidth, bold = true)
             },
             scrollable = {
                 BodyCell("${rows.sumOf { it.total }}", TotalWidth, center = true, bold = true)
@@ -213,40 +206,4 @@ private fun CellBox(width: Dp, center: Boolean, content: @Composable () -> Unit)
             .padding(horizontal = 8.dp),
         contentAlignment = if (center) Alignment.Center else Alignment.CenterStart,
     ) { content() }
-}
-
-// ---- Sample data ----
-
-private val SampleTriggerTypes = listOf(
-    "New Enquiry", "New Account", "Close Account", "Positive Cycle Change",
-    "New Write-off", "Update Write-off", "New Address", "Loss Account",
-    "Past Due Balance", "Past Due Change", "Past Due Settlement", "Negative Cycle Change",
-    "New Identity", "Restructure Loan", "ID Suppression", "3-times Enquiry Alert",
-    "Loan Maturity Alert", "Dishonor Check",
-)
-
-fun sampleTriggerRows(days: Int = 30): List<TriggerRow> {
-    val random = Random(42)
-    return SampleTriggerTypes.mapIndexed { i, type ->
-        TriggerRow(
-            no = i + 1,
-            triggerType = type,
-            dailyCounts = List(days) { if (random.nextFloat() < 0.4f) random.nextInt(1, 4) else 0 },
-        )
-    }
-}
-
-@Preview(showBackground = true, widthDp = 420, heightDp = 800)
-@Composable
-private fun TriggerReportTablePreview() {
-    MaterialTheme {
-        Surface {
-            TriggerReportTable(
-                rows = sampleTriggerRows(),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(12.dp),
-            )
-        }
-    }
 }

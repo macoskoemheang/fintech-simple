@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Languages offered in system Settings > Apps > Nova Bank > Language (Android 13+). Keep in sync with AppLanguage. -->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="en" />
+    <locale android:name="km" />
+    <locale android:name="zh-CN" />
+</locale-config>

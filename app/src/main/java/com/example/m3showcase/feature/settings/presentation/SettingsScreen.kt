@@ -57,9 +57,15 @@ import com.example.m3showcase.core.designsystem.component.LoadingState
 import com.example.m3showcase.core.domain.model.EventTheme
 import com.example.m3showcase.core.domain.model.SessionTimeout
 import com.example.m3showcase.core.domain.model.ThemeMode
-import com.example.m3showcase.core.ui.displayName
 import com.example.m3showcase.core.domain.model.UserProfile
 import org.koin.androidx.compose.koinViewModel
+import androidx.compose.ui.res.stringResource
+import com.example.m3showcase.R
+import com.example.m3showcase.core.domain.model.AppLanguage
+import androidx.compose.material.icons.rounded.Translate
+import com.example.m3showcase.core.ui.labelRes
+import com.example.m3showcase.core.ui.nameRes
+import com.example.m3showcase.core.language.endonym
 
 @Composable
 fun SettingsRoute(
@@ -86,7 +92,7 @@ fun SettingsScreen(state: SettingsViewState, onAction: (SettingsViewAction) -> U
     Scaffold(
         containerColor = Color.Transparent, // AppBackground shows through.
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = { LargeFlexibleTopAppBar(colors = bankTopAppBarColors(), title = { Text("More") }, scrollBehavior = scrollBehavior) },
+        topBar = { LargeFlexibleTopAppBar(colors = bankTopAppBarColors(), title = { Text(stringResource(R.string.nav_more)) }, scrollBehavior = scrollBehavior) },
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             when (state) {
@@ -99,14 +105,17 @@ fun SettingsScreen(state: SettingsViewState, onAction: (SettingsViewAction) -> U
         AlertDialog(
             onDismissRequest = { onAction(SettingsViewAction.OnLogoutDismissed) },
             icon = { Icon(Icons.AutoMirrored.Rounded.Logout, null) },
-            title = { Text("Log out?") },
-            text = { Text("You'll need your PIN to sign in again.") },
-            confirmButton = { TextButton(onClick = { onAction(SettingsViewAction.OnLogoutConfirmed) }) { Text("Log out") } },
-            dismissButton = { TextButton(onClick = { onAction(SettingsViewAction.OnLogoutDismissed) }) { Text("Cancel") } },
+            title = { Text(stringResource(R.string.settings_logout_title)) },
+            text = { Text(stringResource(R.string.settings_logout_message)) },
+            confirmButton = { TextButton(onClick = { onAction(SettingsViewAction.OnLogoutConfirmed) }) { Text(stringResource(R.string.settings_logout)) } },
+            dismissButton = { TextButton(onClick = { onAction(SettingsViewAction.OnLogoutDismissed) }) { Text(stringResource(R.string.action_cancel)) } },
         )
     }
     if (state is SettingsViewState.Success && state.showSessionTimeoutDialog) {
         SessionTimeoutDialog(selected = state.sessionTimeout, onAction = onAction)
+    }
+    if (state is SettingsViewState.Success && state.showLanguageDialog) {
+        LanguageDialog(selected = state.language, onAction = onAction)
     }
 }
 
@@ -115,11 +124,11 @@ private fun SessionTimeoutDialog(selected: SessionTimeout, onAction: (SettingsVi
     AlertDialog(
         onDismissRequest = { onAction(SettingsViewAction.OnSessionTimeoutDismissed) },
         icon = { Icon(Icons.Rounded.Timer, null) },
-        title = { Text("Auto-lock") },
+        title = { Text(stringResource(R.string.settings_auto_lock)) },
         text = {
             Column(Modifier.selectableGroup()) {
                 Text(
-                    "Lock the app and ask for your PIN after this much time without activity.",
+                    stringResource(R.string.settings_auto_lock_dialog_message),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(bottom = 8.dp),
                 )
@@ -136,13 +145,13 @@ private fun SessionTimeoutDialog(selected: SessionTimeout, onAction: (SettingsVi
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         RadioButton(selected = option == selected, onClick = null) // Row handles the click.
-                        Text(option.displayName, Modifier.padding(start = 12.dp))
+                        Text(stringResource(option.labelRes), Modifier.padding(start = 12.dp))
                     }
                 }
             }
         },
         confirmButton = {},
-        dismissButton = { TextButton(onClick = { onAction(SettingsViewAction.OnSessionTimeoutDismissed) }) { Text("Cancel") } },
+        dismissButton = { TextButton(onClick = { onAction(SettingsViewAction.OnSessionTimeoutDismissed) }) { Text(stringResource(R.string.action_cancel)) } },
     )
 }
 
@@ -154,7 +163,7 @@ private fun SettingsContent(state: SettingsViewState.Success, onAction: (Setting
     ) {
         ProfileCard(state.user)
 
-        SettingsSection("Appearance") {
+        SettingsSection(stringResource(R.string.settings_appearance)) {
             ListItem(
                 modifier = Modifier.clickable { onAction(SettingsViewAction.OnThemeClicked) },
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
@@ -168,29 +177,37 @@ private fun SettingsContent(state: SettingsViewState.Success, onAction: (Setting
                         contentDescription = null,
                     )
                 },
-                headlineContent = { Text("Theme") },
+                headlineContent = { Text(stringResource(R.string.theme_title)) },
                 supportingContent = {
-                    val skin = if (state.eventTheme == EventTheme.Auto) "Seasonal" else state.eventTheme.displayName
-                    Text("${state.themeMode.name} · $skin")
+                    val skin = if (state.eventTheme == EventTheme.Auto) stringResource(R.string.settings_seasonal) else stringResource(state.eventTheme.nameRes)
+                    Text("${stringResource(state.themeMode.labelRes)} · $skin")
                 },
+                trailingContent = { Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null) },
+            )
+            ListItem(
+                modifier = Modifier.clickable { onAction(SettingsViewAction.OnLanguageClicked) },
+                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                leadingContent = { Icon(Icons.Rounded.Translate, null) },
+                headlineContent = { Text(stringResource(R.string.settings_language)) },
+                supportingContent = { Text(state.language.endonym()) },
                 trailingContent = { Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null) },
             )
         }
 
-        SettingsSection("Privacy & security") {
+        SettingsSection(stringResource(R.string.settings_privacy_security)) {
             ListItem(
                 modifier = Modifier.clickable { onAction(SettingsViewAction.OnSessionTimeoutClicked) },
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                 leadingContent = { Icon(Icons.Rounded.Timer, null) },
-                headlineContent = { Text("Auto-lock") },
-                supportingContent = { Text("After ${state.sessionTimeout.displayName} of inactivity") },
+                headlineContent = { Text(stringResource(R.string.settings_auto_lock)) },
+                supportingContent = { Text(stringResource(R.string.settings_auto_lock_after, stringResource(state.sessionTimeout.labelRes))) },
                 trailingContent = { Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null) },
             )
             ListItem(
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                 leadingContent = { Icon(Icons.Rounded.VisibilityOff, null) },
-                headlineContent = { Text("Hide balances") },
-                supportingContent = { Text("Mask amounts on Home and Accounts") },
+                headlineContent = { Text(stringResource(R.string.settings_hide_balances)) },
+                supportingContent = { Text(stringResource(R.string.settings_hide_balances_desc)) },
                 trailingContent = {
                     Switch(
                         checked = state.isBalanceHidden,
@@ -200,12 +217,12 @@ private fun SettingsContent(state: SettingsViewState.Success, onAction: (Setting
             )
         }
 
-        SettingsSection("Explore") {
+        SettingsSection(stringResource(R.string.settings_explore)) {
             ListItem(
                 modifier = Modifier.clickable { onAction(SettingsViewAction.OnOpenShowcaseClicked) },
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                 leadingContent = { Icon(Icons.Rounded.AutoAwesome, null) },
-                headlineContent = { Text("Material 3 Expressive showcase") },
+                headlineContent = { Text(stringResource(R.string.settings_showcase)) },
                 trailingContent = { Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null) },
             )
         }
@@ -215,7 +232,7 @@ private fun SettingsContent(state: SettingsViewState.Success, onAction: (Setting
                 modifier = Modifier.clickable { onAction(SettingsViewAction.OnLogoutClicked) },
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                 leadingContent = { Icon(Icons.AutoMirrored.Rounded.Logout, null, tint = MaterialTheme.colorScheme.error) },
-                headlineContent = { Text("Log out", color = MaterialTheme.colorScheme.error) },
+                headlineContent = { Text(stringResource(R.string.settings_logout), color = MaterialTheme.colorScheme.error) },
             )
         }
     }
@@ -268,4 +285,35 @@ private fun SettingsSection(title: String?, content: @Composable () -> Unit) {
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest),
         ) { content() }
     }
+}
+
+@Composable
+private fun LanguageDialog(selected: AppLanguage, onAction: (SettingsViewAction) -> Unit) {
+    AlertDialog(
+        onDismissRequest = { onAction(SettingsViewAction.OnLanguageDismissed) },
+        icon = { Icon(Icons.Rounded.Translate, null) },
+        title = { Text(stringResource(R.string.settings_language)) },
+        text = {
+            Column(Modifier.selectableGroup()) {
+                AppLanguage.entries.forEach { option ->
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .selectable(
+                                selected = option == selected,
+                                role = Role.RadioButton,
+                                onClick = { onAction(SettingsViewAction.OnLanguageSelected(option)) },
+                            )
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        RadioButton(selected = option == selected, onClick = null) // Row handles the click.
+                        Text(option.endonym(), Modifier.padding(start = 12.dp))
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = { TextButton(onClick = { onAction(SettingsViewAction.OnLanguageDismissed) }) { Text(stringResource(R.string.action_cancel)) } },
+    )
 }

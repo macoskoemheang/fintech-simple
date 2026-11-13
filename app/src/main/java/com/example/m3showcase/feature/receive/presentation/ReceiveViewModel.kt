@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import com.example.m3showcase.core.ui.UiText
+import com.example.m3showcase.R
 
 class ReceiveViewModel(
     observeReceiveQr: ObserveReceiveQrUseCase,
@@ -52,10 +54,14 @@ class ReceiveViewModel(
         when (action) {
             is ReceiveViewAction.OnAccountSelected -> selectedIndex.value = action.index
             ReceiveViewAction.OnRetry -> load()
+            ReceiveViewAction.OnQrClicked ->
+                (viewState.value as? ReceiveViewState.Success)?.selected?.let { _events.trySend(ReceiveEvent.OpenDetail(it.accountNumber)) }
             ReceiveViewAction.OnShareClicked -> {
                 val qr = (viewState.value as? ReceiveViewState.Success)?.selected ?: return
                 _events.trySend(
-                    ReceiveEvent.Share("Send money to ${qr.accountName}\nAccount: ${qr.accountNumber.formatAccountNumber()} (${qr.currency.name})")
+                    ReceiveEvent.Share(
+                        UiText.res(R.string.receive_share_text, qr.accountName, qr.accountNumber.formatAccountNumber(), qr.currency.name),
+                    )
                 )
             }
         }

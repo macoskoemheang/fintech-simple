@@ -27,6 +27,8 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.example.m3showcase.core.ui.UiText
+import com.example.m3showcase.R
 
 class HomeViewModel(
     observeDashboard: ObserveHomeDashboardUseCase,
@@ -87,6 +89,7 @@ class HomeViewModel(
             is HomeViewAction.OnAccountClicked -> send(HomeEvent.OpenTransactionHistory(action.accountId))
             is HomeViewAction.OnTransactionClicked -> send(HomeEvent.OpenReceipt(action.transactionId))
             HomeViewAction.OnSeeAllTransactionsClicked -> send(HomeEvent.OpenTransactionHistory(null))
+            HomeViewAction.OnNotificationsClicked -> send(HomeEvent.OpenNotifications)
         }
     }
 
@@ -95,7 +98,8 @@ class HomeViewModel(
             QuickAction.Accounts -> HomeEvent.OpenAccounts
             QuickAction.Transfer -> HomeEvent.OpenTransfer
             QuickAction.Receive -> HomeEvent.OpenReceive
-            else -> HomeEvent.ShowMessage("${action.name} is coming soon")
+            QuickAction.Payments, QuickAction.Deposits, QuickAction.Loans, QuickAction.Locator -> HomeEvent.OpenService(action)
+            QuickAction.Cards -> HomeEvent.ShowMessage(UiText.res(R.string.home_coming_soon, UiText.res(action.labelRes)))
         }
     )
 

@@ -1,3 +1,382 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- English (default). Every key here needs a match in values-km and values-zh. -->
 <resources>
-    <string name="app_name">m3showcase</string>
+    <string name="app_name" translatable="false">m3showcase</string>
+
+    <!-- Errors -->
+    <string name="error_no_internet">No internet connection. Check your network and try again.</string>
+    <string name="error_timeout">The server took too long to respond. Please try again.</string>
+    <string name="error_invalid_pin">Incorrect PIN. Please try again.</string>
+    <string name="error_insufficient_funds">Insufficient balance for this transfer.</string>
+    <string name="error_account_not_found">Account not found.</string>
+    <string name="error_not_found">We couldn\'t find that item.</string>
+    <string name="error_generic">Something went wrong. Please try again.</string>
+
+    <!-- Validation -->
+    <string name="validation_choose_account">Choose an account to send from</string>
+    <string name="validation_pin_length">PIN must be %1$d digits</string>
+    <string name="validation_account_length">Account number must be %1$d digits</string>
+    <string name="validation_same_account">You can\'t transfer to the same account</string>
+    <string name="validation_currency_mismatch">Destination account uses a different currency</string>
+    <string name="validation_amount_invalid">Enter a valid amount</string>
+    <string name="validation_amount_positive">Amount must be greater than zero</string>
+    <plurals name="validation_amount_decimals">
+        <item quantity="one">Up to %1$d decimal place</item>
+        <item quantity="other">Up to %1$d decimal places</item>
+    </plurals>
+    <string name="validation_amount_limit">Above the per-transaction limit</string>
+    <string name="validation_insufficient_balance">Insufficient balance</string>
+
+    <!-- Dates -->
+    <string name="date_today_at">Today, %1$s</string>
+    <string name="date_yesterday_at">Yesterday, %1$s</string>
+
+    <!-- Festival themes -->
+    <string name="event_auto">Auto</string>
+    <string name="event_classic">Classic</string>
+    <string name="event_water_festival">Water Festival</string>
+    <string name="event_khmer_new_year">Khmer New Year</string>
+    <string name="event_pchum_ben">Pchum Ben</string>
+    <string name="event_independence_day">Independence Day</string>
+    <string name="event_winter">Winter</string>
+    <string name="event_spring">Spring</string>
+    <string name="greeting_water_festival">Happy Water Festival</string>
+    <string name="greeting_khmer_new_year">Happy Khmer New Year</string>
+    <string name="greeting_pchum_ben">Peaceful Pchum Ben</string>
+    <string name="greeting_independence_day">Happy Independence Day</string>
+    <string name="greeting_winter">Stay warm this winter</string>
+    <string name="greeting_spring">Happy spring</string>
+
+    <!-- Auto-lock -->
+    <string name="timeout_5_seconds">5 seconds (testing)</string>
+    <string name="timeout_5_minutes">5 minutes</string>
+    <string name="timeout_10_minutes">10 minutes</string>
+    <string name="timeout_15_minutes">15 minutes</string>
+
+    <!-- Navigation & common -->
+    <string name="nav_home">Home</string>
+    <string name="nav_accounts">Accounts</string>
+    <string name="nav_receive">Receive</string>
+    <string name="nav_more">More</string>
+    <string name="action_back">Back</string>
+    <string name="action_close">Close</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_retry">Retry</string>
+    <string name="action_try_again">Try again</string>
+    <string name="action_share">Share</string>
+    <string name="action_done">Done</string>
+    <string name="banner_offline">No internet connection</string>
+    <string name="banner_back_online">Back online</string>
+    <string name="state_offline_title">You\'re offline</string>
+    <string name="state_error_title">Something went wrong</string>
+
+    <!-- Paged lists -->
+    <string name="paging_empty_title">Nothing here yet</string>
+    <string name="paging_empty_message">Pull down to check again.</string>
+    <string name="paging_load_more_failed">Couldn\'t load more. %1$s</string>
+    <string name="paging_back_to_top">Back to top</string>
+    <plurals name="paging_end_items">
+        <item quantity="one">You\'re all caught up · %1$d item</item>
+        <item quantity="other">You\'re all caught up · %1$d items</item>
+    </plurals>
+
+    <!-- Account card -->
+    <string name="account_type_savings">Savings</string>
+    <string name="account_type_current">Current</string>
+    <string name="account_type_fixed_deposit">Fixed deposit</string>
+    <string name="account_available_balance">Available balance</string>
+    <string name="account_selected">Selected</string>
+    <string name="account_default">Default</string>
+
+    <!-- Login -->
+    <string name="login_welcome">Welcome back</string>
+    <string name="login_enter_pin">Enter your %1$d-digit PIN</string>
+    <string name="login_forgot_pin">Forgot PIN?</string>
+    <string name="login_forgot_pin_help">Visit any branch or call 023 000 000 to reset your PIN.</string>
+    <string name="login_demo_pin">Demo PIN: %1$s</string>
+    <string name="login_delete">Delete</string>
+    <string name="splash_tagline">Banking, made expressive</string>
+
+    <!-- Home -->
+    <string name="home_good_morning">Good morning</string>
+    <string name="home_good_afternoon">Good afternoon</string>
+    <string name="home_good_evening">Good evening</string>
+    <string name="home_show_balance">Show balance</string>
+    <string name="home_hide_balance">Hide balance</string>
+    <string name="home_recent_transactions">Recent transactions</string>
+    <string name="home_see_all">See all</string>
+    <string name="home_empty_title">No transactions yet</string>
+    <string name="home_empty_message">Your latest activity will show up here.</string>
+    <string name="home_coming_soon">%1$s is coming soon</string>
+    <string name="quick_accounts">Accounts</string>
+    <string name="quick_transfers">Transfers</string>
+    <string name="quick_receive_qr">Receive QR</string>
+    <string name="quick_payments">Payments</string>
+    <string name="quick_cards">Cards</string>
+    <string name="quick_deposits">Deposits</string>
+    <string name="quick_loans">Loans</string>
+    <string name="quick_locator">Locator</string>
+
+    <!-- Accounts -->
+    <string name="accounts_title">My Accounts</string>
+    <string name="accounts_subtitle">Savings and current accounts</string>
+    <string name="accounts_empty_title">No accounts</string>
+    <string name="accounts_empty_message">Open an account at any branch to get started.</string>
+    <string name="accounts_transfer">Transfer</string>
+    <string name="accounts_history">History</string>
+    <string name="history_all_transactions">All transactions</string>
+    <string name="history_empty_title">Nothing here</string>
+    <string name="history_empty_message">No transactions match this filter.</string>
+    <string name="filter_all">All</string>
+    <string name="history_money_in">Money in</string>
+    <string name="history_money_out">Money out</string>
+
+    <!-- Transfer -->
+    <string name="transfer_title">Transfer</string>
+    <string name="transfer_continue">Continue</string>
+    <string name="transfer_no_accounts_message">You need an account before you can send money.</string>
+    <string name="transfer_offline">You\'re offline. Transfers are paused until you\'re back online.</string>
+    <string name="transfer_from_account">From account</string>
+    <string name="transfer_to_account">To account</string>
+    <string name="transfer_account_number">Account number</string>
+    <string name="transfer_account_number_hint">9-digit account number, e.g. 000789012 or any other 9 digits</string>
+    <string name="transfer_amount">Amount</string>
+    <string name="transfer_amount_label">Amount (%1$s)</string>
+    <string name="transfer_available">Available: %1$s</string>
+    <string name="transfer_remark_optional">Remark (optional)</string>
+    <string name="transfer_confirm_title">Confirm transfer</string>
+    <string name="transfer_from">From</string>
+    <string name="transfer_to">To</string>
+    <string name="transfer_fee">Fee</string>
+    <string name="transfer_remark">Remark</string>
+    <string name="transfer_confirm_send">Confirm &amp; send</string>
+    <string name="transfer_waiting_connection">Waiting for connection…</string>
+
+    <!-- Receipt -->
+    <string name="receipt_details_title">Transaction details</string>
+    <string name="receipt_transfer_successful">Transfer successful</string>
+    <string name="receipt_description">Description</string>
+    <string name="receipt_date">Date</string>
+    <string name="receipt_reference">Reference</string>
+    <string name="receipt_share_chooser">Share receipt</string>
+    <string name="receipt_share_text">%1$s\n%2$s\n%3$s\nRef: %4$s</string>
+
+    <!-- Receive -->
+    <string name="receive_title">Receive money</string>
+    <string name="receive_empty_message">Open an account to receive money.</string>
+    <string name="receive_scan_to_pay">SCAN TO PAY</string>
+    <string name="receive_share_details">Share account details</string>
+    <string name="receive_share_chooser">Share account</string>
+    <string name="receive_share_text">Send money to %1$s\nAccount: %2$s (%3$s)</string>
+
+    <!-- Trigger report -->
+    <string name="report_no">No.</string>
+    <string name="report_trigger_type">Trigger Type</string>
+    <string name="report_total">Total</string>
+
+    <!-- Notifications -->
+    <string name="notifications_title">Notifications</string>
+    <string name="notifications_mark_all_read">Mark all as read</string>
+    <string name="notifications_all_marked_read">All notifications marked as read</string>
+    <string name="notifications_showing">Showing %1$d of %2$d</string>
+    <plurals name="notifications_end">
+        <item quantity="one">You\'re all caught up · %1$d notification</item>
+        <item quantity="other">You\'re all caught up · %1$d notifications</item>
+    </plurals>
+    <string name="notifications_filter_unread">Unread</string>
+    <string name="notifications_filter_transactions">Transactions</string>
+    <string name="notifications_filter_security">Security</string>
+    <string name="notifications_filter_offers">Offers</string>
+    <string name="notifications_category_transaction">Transaction</string>
+    <string name="notifications_category_offer">Offer</string>
+    <string name="notifications_category_service">Service</string>
+    <string name="section_today">Today</string>
+    <string name="section_yesterday">Yesterday</string>
+    <string name="section_earlier">Earlier</string>
+    <string name="notifications_empty_unread_title">You\'re all caught up</string>
+    <string name="notifications_empty_unread_message">No unread notifications. Pull down to check again.</string>
+    <string name="notifications_empty_title">No notifications yet</string>
+    <string name="notifications_empty_message">Payments, sign-ins and offers will show up here.</string>
+    <string name="notifications_empty_filter_title">Nothing in %1$s</string>
+    <string name="notifications_empty_filter_message">Try another filter or pull down to refresh.</string>
+
+    <!-- Theme -->
+    <string name="theme_title">Theme</string>
+    <string name="theme_intro">Choose how the app looks. Changes apply right away.</string>
+    <string name="theme_mode_system">System</string>
+    <string name="theme_mode_light">Light</string>
+    <string name="theme_mode_dark">Dark</string>
+    <string name="theme_system_desc_dark">Following your device. It\'s in dark mode right now.</string>
+    <string name="theme_system_desc_light">Following your device. It\'s in light mode right now.</string>
+    <string name="theme_light_desc">Always light, whatever your device setting.</string>
+    <string name="theme_dark_desc">Always dark. Easier on the eyes at night.</string>
+    <string name="theme_festival_section">Festival themes</string>
+    <string name="theme_match_season">Match the season</string>
+    <string name="theme_match_season_desc">Switches on for each festival.</string>
+    <string name="theme_match_season_next">Switches on for each festival. Next: %1$s · %2$s</string>
+    <string name="theme_live_now">Live now</string>
+    <string name="theme_chosen_automatically">Chosen automatically</string>
+    <string name="theme_everyday_look">Everyday look</string>
+
+    <!-- Settings -->
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_seasonal">Seasonal</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_system">System default</string>
+    <string name="settings_privacy_security">Privacy &amp; security</string>
+    <string name="settings_auto_lock">Auto-lock</string>
+    <string name="settings_auto_lock_after">After %1$s of inactivity</string>
+    <string name="settings_auto_lock_dialog_message">Lock the app and ask for your PIN after this much time without activity.</string>
+    <string name="settings_hide_balances">Hide balances</string>
+    <string name="settings_hide_balances_desc">Mask amounts on Home and Accounts</string>
+    <string name="settings_explore">Explore</string>
+    <string name="settings_showcase">Material 3 Expressive showcase</string>
+    <string name="settings_logout">Log out</string>
+    <string name="settings_logout_title">Log out?</string>
+    <string name="settings_logout_message">You\'ll need your PIN to sign in again.</string>
+    <string name="language_switching">Changing language…</string>
+
+    <!-- Payments -->
+    <string name="payments_title">Payments</string>
+    <string name="payments_paid_this_month">Paid this month</string>
+    <string name="payments_empty_title">No payments yet</string>
+    <string name="payments_empty_message">Bills you pay will show up here.</string>
+    <plurals name="payments_end">
+        <item quantity="one">That\'s all · %1$d payment</item>
+        <item quantity="other">That\'s all · %1$d payments</item>
+    </plurals>
+    <string name="biller_electricity">Electricity</string>
+    <string name="biller_water">Water</string>
+    <string name="biller_internet">Internet</string>
+    <string name="biller_mobile">Mobile top-up</string>
+    <string name="biller_education">Education</string>
+    <string name="biller_insurance">Insurance</string>
+    <string name="payment_status_success">Successful</string>
+    <string name="payment_status_pending">Pending</string>
+    <string name="payment_status_failed">Failed</string>
+    <string name="payment_detail_title">Payment details</string>
+    <string name="payment_section_bill">Bill</string>
+    <string name="payment_section_amount">Amount</string>
+    <string name="payment_section_details">Details</string>
+    <string name="payment_biller">Biller</string>
+    <string name="payment_category">Category</string>
+    <string name="payment_customer_id">Customer ID</string>
+    <string name="payment_amount">Bill amount</string>
+    <string name="payment_total">Total paid</string>
+    <string name="payment_paid_from">Paid from</string>
+    <string name="payment_share_receipt">Share receipt</string>
+    <string name="payment_pending_note">The biller is still confirming this payment. It usually takes a few minutes.</string>
+    <string name="payment_failed_note">This payment didn\'t go through. No money was taken from your account.</string>
+
+    <!-- Deposits -->
+    <string name="common_yes">Yes</string>
+    <string name="common_no">No</string>
+    <plurals name="term_months">
+        <item quantity="one">%1$d month</item>
+        <item quantity="other">%1$d months</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="one">%1$d day left</item>
+        <item quantity="other">%1$d days left</item>
+    </plurals>
+    <string name="deposits_title">Deposits</string>
+    <string name="deposits_total">Total deposited</string>
+    <string name="deposits_interest_earned">Interest earned</string>
+    <string name="deposits_empty_title">No deposits yet</string>
+    <string name="deposits_empty_message">Open a fixed deposit at any branch to earn more interest.</string>
+    <string name="deposit_rate_term">%1$s p.a. · %2$s</string>
+    <string name="deposit_matures_on">Matures %1$s</string>
+    <string name="deposit_status_active">Active</string>
+    <string name="deposit_status_matured">Matured</string>
+    <string name="deposit_detail_title">Deposit details</string>
+    <string name="deposit_section_interest">Interest</string>
+    <string name="deposit_rate">Interest rate</string>
+    <string name="deposit_payout">Interest payout</string>
+    <string name="deposit_payout_monthly">Every month</string>
+    <string name="deposit_payout_maturity">At maturity</string>
+    <string name="deposit_interest_to_date">Interest so far</string>
+    <string name="deposit_total_interest">Total interest</string>
+    <string name="deposit_maturity_amount">Amount at maturity</string>
+    <string name="deposit_section_term">Term</string>
+    <string name="deposit_number">Deposit number</string>
+    <string name="deposit_start">Start date</string>
+    <string name="deposit_maturity">Maturity date</string>
+    <string name="deposit_auto_renew">Auto-renew</string>
+    <string name="deposit_schedule">Interest schedule</string>
+    <string name="deposit_paid">Paid</string>
+    <string name="deposit_upcoming">Upcoming</string>
+
+    <!-- Loans -->
+    <string name="loans_title">Loans</string>
+    <string name="loans_total_outstanding">Total outstanding</string>
+    <string name="loans_next_payment">Next payment</string>
+    <string name="loans_empty_title">No loans</string>
+    <string name="loans_empty_message">Loans you take with us will show up here.</string>
+    <string name="loan_type_personal">Personal</string>
+    <string name="loan_type_home">Home</string>
+    <string name="loan_type_car">Car</string>
+    <string name="loan_type_business">Business</string>
+    <string name="loan_outstanding">Outstanding balance</string>
+    <string name="loan_of_borrowed">of %1$s borrowed</string>
+    <string name="loan_installments_paid">%1$d of %2$d paid</string>
+    <string name="loan_percent_repaid">%1$d%% repaid</string>
+    <string name="loan_report_entry_desc">Credit-bureau alerts for the last 30 days</string>
+    <string name="loan_detail_title">Loan details</string>
+    <string name="loan_paid_off">This loan is fully repaid.</string>
+    <string name="loan_section_details">Loan</string>
+    <string name="loan_name">Product</string>
+    <string name="loan_number">Loan number</string>
+    <string name="loan_principal">Amount borrowed</string>
+    <string name="loan_term">Term</string>
+    <string name="loan_monthly_payment">Monthly payment</string>
+    <string name="loan_total_interest">Total interest</string>
+    <string name="loan_disbursed">Disbursed on</string>
+    <string name="loan_end_date">Final payment</string>
+    <string name="loan_schedule">Repayment schedule</string>
+    <string name="loan_due_on">Due %1$s</string>
+    <string name="loan_status_due">Due next</string>
+    <string name="loan_installment_breakdown">Principal %1$s · Interest %2$s · Balance %3$s</string>
+
+    <!-- Loan report -->
+    <string name="loan_report_title">Loan report</string>
+    <string name="loan_report_period">%1$s – %2$s</string>
+    <string name="loan_report_total_alerts">Total alerts</string>
+    <string name="loan_report_trigger_types">Trigger types</string>
+    <string name="loan_report_top_trigger">Most frequent</string>
+    <string name="loan_report_daily_alerts">Alerts per day</string>
+    <string name="loan_report_day_total">%1$s · %2$d</string>
+    <string name="loan_report_chart_description">Bar chart of credit-bureau alerts per day. Tap a bar to see that day.</string>
+    <string name="loan_report_count_on_day">%1$d × %2$s on day %3$d</string>
+
+    <!-- Locator -->
+    <string name="locator_title">Branches &amp; ATMs</string>
+    <string name="locator_search">Search by name or area</string>
+    <string name="locator_clear_search">Clear search</string>
+    <string name="locator_open_now">Open now</string>
+    <string name="locator_type_branch">Branches</string>
+    <string name="locator_type_atm">ATMs</string>
+    <string name="locator_type_cash_deposit">Cash deposit</string>
+    <string name="locator_open_24h">Open 24 hours</string>
+    <string name="locator_open_until">Open · until %1$s</string>
+    <string name="locator_closed">Closed</string>
+    <string name="locator_mon_fri">Monday – Friday</string>
+    <string name="locator_saturday">Saturday</string>
+    <string name="locator_sunday">Sunday</string>
+    <string name="locator_directions">Directions</string>
+    <string name="locator_call">Call</string>
+    <string name="locator_distance_m">%1$d m</string>
+    <string name="locator_distance_km">%1$s km</string>
+    <string name="locator_empty_title">Nothing found</string>
+    <string name="locator_empty_message">Try another search or turn off a filter.</string>
+
+    <!-- Receive QR detail -->
+    <string name="receive_detail_title">My QR code</string>
+    <string name="receive_set_amount">Set amount</string>
+    <string name="receive_amount_hint">Leave empty to let the payer choose</string>
+    <string name="receive_note">Note for payer (optional)</string>
+    <string name="receive_copy_number">Copy number</string>
+    <string name="receive_copied">Account number copied</string>
+    <string name="receive_brightness_hint">Brightness raised so it scans easily</string>
+    <string name="receive_share_text_amount">Send %4$s to %1$s
+Account: %2$s (%3$s)</string>
 </resources>

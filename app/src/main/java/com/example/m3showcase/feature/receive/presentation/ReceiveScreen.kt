@@ -49,18 +49,24 @@ import com.example.m3showcase.core.designsystem.component.LoadingState
 import com.example.m3showcase.core.designsystem.component.QrCode
 import com.example.m3showcase.core.ui.formatAccountNumber
 import org.koin.androidx.compose.koinViewModel
+import androidx.compose.ui.res.stringResource
+import com.example.m3showcase.R
+import com.example.m3showcase.core.ui.asString
+import androidx.compose.material3.Button
+import androidx.compose.material.icons.rounded.Edit
 
 @Composable
-fun ReceiveRoute(viewModel: ReceiveViewModel = koinViewModel()) {
+fun ReceiveRoute(onOpenDetail: (accountNumber: String) -> Unit, viewModel: ReceiveViewModel = koinViewModel()) {
     val state by viewModel.viewState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
+                is ReceiveEvent.OpenDetail -> onOpenDetail(event.accountNumber)
                 is ReceiveEvent.Share -> context.startActivity(
                     Intent.createChooser(
-                        Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, event.text),
-                        "Share account",
+                        Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, event.text.asString(context)),
+                        context.getString(R.string.receive_share_chooser),
                     )
                 )
             }
@@ -74,12 +80,12 @@ fun ReceiveRoute(viewModel: ReceiveViewModel = koinViewModel()) {
 fun ReceiveScreen(state: ReceiveViewState, onAction: (ReceiveViewAction) -> Unit) {
     Scaffold(
         containerColor = Color.Transparent, // AppBackground shows through.
-        topBar = { CenterAlignedTopAppBar(colors = bankTopAppBarColors(), title = { Text("Receive money") }) }) { padding ->
+        topBar = { CenterAlignedTopAppBar(colors = bankTopAppBarColors(), title = { Text(stringResource(R.string.receive_title)) }) }) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             when (state) {
                 ReceiveViewState.Loading -> LoadingState()
-                ReceiveViewState.Empty -> EmptyState("No accounts", "Open an account to receive money.")
-                is ReceiveViewState.Error -> ErrorState(state.message, { onAction(ReceiveViewAction.OnRetry) }, isOffline = state.isOffline)
+                ReceiveViewState.Empty -> EmptyState(stringResource(R.string.accounts_empty_title), stringResource(R.string.receive_empty_message))
+                is ReceiveViewState.Error -> ErrorState(state.message.asString(), { onAction(ReceiveViewAction.OnRetry) }, isOffline = state.isOffline)
                 is ReceiveViewState.Success -> ReceiveContent(state, onAction)
             }
         }
@@ -105,50 +111,17 @@ private fun ReceiveContent(state: ReceiveViewState.Success, onAction: (ReceiveVi
             }
         }
 
-        // The QR card stays white in dark mode too, so scanners can read it.
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-            color = Color.White,
-            shadowElevation = 6.dp,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .background(BrandColors.Coral, RoundedCornerShape(topStart = 36.dp, topEnd = 36.dp))
-                        .padding(vertical = 14.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text("SCAN TO PAY", color = Color.White, fontWeight = FontWeight.Black, style = MaterialTheme.typography.titleMedium)
-                }
-                Column(Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(qr.accountName, color = Color(0xFF181C20), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                    Text(
-                        "${qr.accountNumber.formatAccountNumber()} · ${qr.currency.name}",
-                        color = Color(0xFF41484F),
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                    Spacer(Modifier.height(20.dp))
-                    QrCode(content = qr.payload, size = 220.dp, color = BrandColors.NavyDeep) {
-                        Surface(
-                            shape = MaterialShapes.Cookie9Sided.toShape(),
-                            color = BrandColors.Cyan,
-                            border = BorderStroke(4.dp, Color.White),
-                            modifier = Modifier.size(48.dp),
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Text("N", color = Color.White, fontWeight = FontWeight.Black)
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        ReceiveQrCard(qr = qr, payload = qr.payload, onClick = { onAction(ReceiveViewAction.OnQrClicked) })
 
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Button(onClick = { onAction(ReceiveViewAction.OnQrClicked) }, shapes = ButtonDefaults.shapes()) {
+                Icon(Icons.Rounded.Edit, null, Modifier.size(18.dp))
+                Text(stringResource(R.string.receive_set_amount), Modifier.padding(start = 8.dp))
+            }
         FilledTonalButton(onClick = { onAction(ReceiveViewAction.OnShareClicked) }, shapes = ButtonDefaults.shapes()) {
             Icon(Icons.Rounded.Share, null, Modifier.size(18.dp))
-            Text("Share account details", Modifier.padding(start = 8.dp))
+            Text(stringResource(R.string.receive_share_details), Modifier.padding(start = 8.dp))
+        }
         }
     }
 }

@@ -4,6 +4,9 @@ import com.example.m3showcase.core.common.DefaultDispatcherProvider
 import com.example.m3showcase.core.common.DispatcherProvider
 import com.example.m3showcase.core.common.CambodiaDateProvider
 import com.example.m3showcase.core.common.DateProvider
+import com.example.m3showcase.core.common.LocalTimeProvider
+import com.example.m3showcase.core.common.CambodiaTimeProvider
+import com.example.m3showcase.core.data.remote.FakeNetwork
 import com.example.m3showcase.core.common.MonotonicClock
 import com.example.m3showcase.core.common.SystemMonotonicClock
 import com.example.m3showcase.core.domain.usecase.CheckSessionExpiryUseCase
@@ -23,6 +26,10 @@ import com.example.m3showcase.core.data.local.BankLocalDataSource
 import com.example.m3showcase.core.data.local.SettingsLocalDataSource
 import com.example.m3showcase.core.data.remote.FakeBankRemoteDataSource
 import com.example.m3showcase.core.data.repository.AccountRepositoryImpl
+import com.example.m3showcase.core.data.repository.AppCompatLanguageRepository
+import com.example.m3showcase.core.domain.repository.LanguageRepository
+import com.example.m3showcase.core.domain.usecase.ObserveAppLanguageUseCase
+import com.example.m3showcase.core.domain.usecase.SetAppLanguageUseCase
 import com.example.m3showcase.core.data.repository.AuthRepositoryImpl
 import com.example.m3showcase.core.data.repository.SettingsRepositoryImpl
 import com.example.m3showcase.core.data.repository.TransactionRepositoryImpl
@@ -49,6 +56,8 @@ import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import com.example.m3showcase.core.language.LanguageSwitchController
+import com.example.m3showcase.core.language.deviceLocale
 
 /** Lives as long as the process; for app-wide HOT flows like [NetworkMonitor]. */
 val AppScope = named("AppScope")
@@ -56,6 +65,8 @@ val AppScope = named("AppScope")
 val coreModule = module {
     single<DispatcherProvider> { DefaultDispatcherProvider() }
     single<DateProvider> { CambodiaDateProvider() }
+    single<LocalTimeProvider> { CambodiaTimeProvider() }
+    single { FakeNetwork(networkMonitor = get(), dispatchers = get()) }
     single(AppScope) { CoroutineScope(SupervisorJob() + get<DispatcherProvider>().default) }
 
     // Connectivity: one cold source → one shared hot StateFlow
@@ -78,6 +89,7 @@ val coreModule = module {
     singleOf(::TransferRepositoryImpl) { bind<TransferRepository>() }
     singleOf(::SettingsRepositoryImpl) { bind<SettingsRepository>() }
     singleOf(::StaticFestivalCalendarRepository) { bind<FestivalCalendarRepository>() }
+    singleOf(::AppCompatLanguageRepository) { bind<LanguageRepository>() }
 
     // Shared use cases. factory: they hold no state, so a new instance each time is fine.
     factoryOf(::ObserveAccountsUseCase)
@@ -96,4 +108,8 @@ val coreModule = module {
     factoryOf(::SetSessionTimeoutUseCase)
     factoryOf(::RecordUserActivityUseCase)
     factoryOf(::CheckSessionExpiryUseCase)
+    factoryOf(::ObserveAppLanguageUseCase)
+    factoryOf(::SetAppLanguageUseCase)
+    // single: must survive the Activity recreation that a language change causes.
+    single { LanguageSwitchController(get(), get(), deviceLocale = { deviceLocale(androidContext()) }) }
 }
