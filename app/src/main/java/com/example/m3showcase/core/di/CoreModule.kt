@@ -4,6 +4,12 @@ import com.example.m3showcase.core.common.DefaultDispatcherProvider
 import com.example.m3showcase.core.common.DispatcherProvider
 import com.example.m3showcase.core.common.CambodiaDateProvider
 import com.example.m3showcase.core.common.DateProvider
+import com.example.m3showcase.core.common.MonotonicClock
+import com.example.m3showcase.core.common.SystemMonotonicClock
+import com.example.m3showcase.core.domain.usecase.CheckSessionExpiryUseCase
+import com.example.m3showcase.core.domain.usecase.RecordUserActivityUseCase
+import com.example.m3showcase.core.domain.usecase.SetSessionTimeoutUseCase
+import com.example.m3showcase.core.session.SessionTimeoutMonitor
 import com.example.m3showcase.core.data.repository.StaticFestivalCalendarRepository
 import com.example.m3showcase.core.domain.repository.FestivalCalendarRepository
 import com.example.m3showcase.core.domain.usecase.GetActiveFestivalUseCase
@@ -56,6 +62,10 @@ val coreModule = module {
     single<ConnectivityObserver> { AndroidConnectivityObserver(androidContext()) }
     single { NetworkMonitor(observer = get(), appScope = get(AppScope)) }
 
+    // Session timeout: one app-wide idle timer
+    single<MonotonicClock> { SystemMonotonicClock() }
+    single { SessionTimeoutMonitor(authRepository = get(), settingsRepository = get(), clock = get(), appScope = get(AppScope)) }
+
     // Data sources
     singleOf(::FakeBankRemoteDataSource)
     singleOf(::BankLocalDataSource)
@@ -83,4 +93,7 @@ val coreModule = module {
     factoryOf(::ObserveSessionUseCase)
     factoryOf(::LogoutUseCase)
     factoryOf(::ObserveNetworkStatusUseCase)
+    factoryOf(::SetSessionTimeoutUseCase)
+    factoryOf(::RecordUserActivityUseCase)
+    factoryOf(::CheckSessionExpiryUseCase)
 }

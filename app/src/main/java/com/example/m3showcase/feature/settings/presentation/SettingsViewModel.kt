@@ -6,6 +6,7 @@ import com.example.m3showcase.core.domain.usecase.LogoutUseCase
 import com.example.m3showcase.core.domain.usecase.ObserveSessionUseCase
 import com.example.m3showcase.core.domain.usecase.ObserveSettingsUseCase
 import com.example.m3showcase.core.domain.usecase.SetBalanceHiddenUseCase
+import com.example.m3showcase.core.domain.usecase.SetSessionTimeoutUseCase
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,9 +22,11 @@ class SettingsViewModel(
     observeSession: ObserveSessionUseCase,
     private val setBalanceHidden: SetBalanceHiddenUseCase,
     private val logout: LogoutUseCase,
+    private val setSessionTimeout: SetSessionTimeoutUseCase,
 ) : ViewModel() {
 
     private val showLogoutDialog = MutableStateFlow(false)
+    private val showSessionTimeoutDialog = MutableStateFlow(false)
 
     private val _events = Channel<SettingsEvent>(Channel.BUFFERED)
     val events: Flow<SettingsEvent> = _events.receiveAsFlow()
@@ -32,8 +35,17 @@ class SettingsViewModel(
         observeSettings(), // cold (DataStore)
         observeSession(),  // hot (StateFlow)
         showLogoutDialog,  // hot (local)
-    ) { settings, user, dialog ->
-        SettingsViewState.Success(user, settings.themeMode, settings.eventTheme, settings.isBalanceHidden, dialog)
+        showSessionTimeoutDialog, // hot (local)
+    ) { settings, user, logoutDialog, timeoutDialog ->
+        SettingsViewState.Success(
+            user = user,
+            themeMode = settings.themeMode,
+            eventTheme = settings.eventTheme,
+            isBalanceHidden = settings.isBalanceHidden,
+            showLogoutDialog = logoutDialog,
+            sessionTimeout = settings.sessionTimeout,
+            showSessionTimeoutDialog = timeoutDialog,
+        )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsViewState.Loading)
 
     fun onAction(action: SettingsViewAction) {
@@ -46,6 +58,12 @@ class SettingsViewModel(
             SettingsViewAction.OnLogoutConfirmed -> viewModelScope.launch {
                 showLogoutDialog.value = false
                 logout() // The session becomes null; BankApp sends the user back to Login.
+            }
+            SettingsViewAction.OnSessionTimeoutClicked -> showSessionTimeoutDialog.value = true
+            SettingsViewAction.OnSessionTimeoutDismissed -> showSessionTimeoutDialog.value = false
+            is SettingsViewAction.OnSessionTimeoutSelected -> viewModelScope.launch {
+                showSessionTimeoutDialog.value = false
+                setSessionTimeout(action.timeout) // SessionTimeoutMonitor picks it up from DataStore.
             }
         }
     }

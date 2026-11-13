@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.m3showcase.core.domain.model.EventTheme
+import com.example.m3showcase.core.domain.model.SessionTimeout
 import com.example.m3showcase.core.domain.model.ThemeMode
 import com.example.m3showcase.core.domain.model.UserSettings
 import kotlinx.coroutines.flow.Flow
@@ -36,6 +37,9 @@ class SettingsLocalDataSource(context: Context) {
                 eventTheme = prefs[EVENT_THEME]
                     ?.let { saved -> EventTheme.entries.firstOrNull { it.name == saved } }
                     ?: EventTheme.Auto,
+                sessionTimeout = prefs[SESSION_TIMEOUT]
+                    ?.let { saved -> SessionTimeout.entries.firstOrNull { it.name == saved } }
+                    ?: SessionTimeout.Default,
             )
         }
         .distinctUntilChanged()
@@ -52,9 +56,14 @@ class SettingsLocalDataSource(context: Context) {
         dataStore.edit { it[EVENT_THEME] = theme.name }
     }
 
+    suspend fun setSessionTimeout(timeout: SessionTimeout) {
+        dataStore.edit { it[SESSION_TIMEOUT] = timeout.name }
+    }
+
     private companion object {
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val BALANCE_HIDDEN = booleanPreferencesKey("balance_hidden")
         val EVENT_THEME = stringPreferencesKey("event_theme")
+        val SESSION_TIMEOUT = stringPreferencesKey("session_timeout")
     }
 }

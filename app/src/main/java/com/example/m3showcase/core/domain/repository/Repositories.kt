@@ -2,6 +2,7 @@ package com.example.m3showcase.core.domain.repository
 
 import com.example.m3showcase.core.domain.model.Account
 import com.example.m3showcase.core.domain.model.EventTheme
+import com.example.m3showcase.core.domain.model.SessionTimeout
 import com.example.m3showcase.core.domain.model.FestivalWindow
 import com.example.m3showcase.core.domain.model.ThemeMode
 import com.example.m3showcase.core.domain.model.Transaction
@@ -46,6 +47,7 @@ interface SettingsRepository {
     suspend fun setThemeMode(mode: ThemeMode)
     suspend fun setBalanceHidden(hidden: Boolean)
     suspend fun setEventTheme(theme: EventTheme)
+    suspend fun setSessionTimeout(timeout: SessionTimeout)
 }
 
 /** Festival dates. Lunar holidays move every year, so they come from a schedule, not a rule. */

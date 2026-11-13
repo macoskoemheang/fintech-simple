@@ -47,6 +47,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -162,8 +164,10 @@ private fun BrandMark() {
 @Composable
 private fun PinDots(filled: Int, failureCount: Int) {
     val shake = remember { Animatable(0f) }
+    val haptics = LocalHapticFeedback.current
     LaunchedEffect(failureCount) {
         if (failureCount == 0) return@LaunchedEffect
+        haptics.performHapticFeedback(HapticFeedbackType.Reject) // Stronger buzz alongside the shake.
         for (target in listOf(-24f, 20f, -14f, 8f, 0f)) {
             shake.animateTo(target, spring(stiffness = Spring.StiffnessHigh))
         }
@@ -195,17 +199,24 @@ private fun PinDots(filled: Int, failureCount: Int) {
 @Composable
 private fun PinPad(enabled: Boolean, onAction: (LoginViewAction) -> Unit) {
     val rows = listOf("123", "456", "789")
+    // Haptics are pure UI feedback, so they live here rather than in the ViewModel.
+    // performHapticFeedback needs no VIBRATE permission and respects the system "touch vibration" setting.
+    val haptics = LocalHapticFeedback.current
+    val onKey: (LoginViewAction) -> Unit = { action ->
+        haptics.performHapticFeedback(HapticFeedbackType.KeyboardTap)
+        onAction(action)
+    }
     Column(verticalArrangement = Arrangement.spacedBy(14.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         rows.forEach { row ->
             Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                row.forEach { digit -> PinKey(digit, enabled) { onAction(LoginViewAction.OnDigitClicked(digit)) } }
+                row.forEach { digit -> PinKey(digit, enabled) { onKey(LoginViewAction.OnDigitClicked(digit)) } }
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(24.dp), verticalAlignment = Alignment.CenterVertically) {
             Spacer(Modifier.size(76.dp))
-            PinKey('0', enabled) { onAction(LoginViewAction.OnDigitClicked('0')) }
+            PinKey('0', enabled) { onKey(LoginViewAction.OnDigitClicked('0')) }
             Box(Modifier.size(76.dp), contentAlignment = Alignment.Center) {
-                IconButton(onClick = { onAction(LoginViewAction.OnDeleteClicked) }, enabled = enabled) {
+                IconButton(onClick = { onKey(LoginViewAction.OnDeleteClicked) }, enabled = enabled) {
                     Icon(Icons.AutoMirrored.Rounded.Backspace, contentDescription = "Delete", tint = Color.White)
                 }
             }

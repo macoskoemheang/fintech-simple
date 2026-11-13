@@ -45,6 +45,8 @@ data class UserSettings(
     val isBalanceHidden: Boolean = false,
     /** Festival skin on top of light/dark. [EventTheme.Auto] follows the festival calendar. */
     val eventTheme: EventTheme = EventTheme.Auto,
+    /** Idle time before the app locks back to the PIN screen. */
+    val sessionTimeout: SessionTimeout = SessionTimeout.Default,
 )
 
 enum class ThemeMode { System, Light, Dark }

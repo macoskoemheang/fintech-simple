@@ -17,6 +17,7 @@ import com.example.m3showcase.core.domain.repository.AccountRepository
 import com.example.m3showcase.core.domain.repository.AuthRepository
 import com.example.m3showcase.core.domain.repository.SettingsRepository
 import com.example.m3showcase.core.domain.model.EventTheme
+import com.example.m3showcase.core.domain.model.SessionTimeout
 import com.example.m3showcase.core.domain.repository.TransactionRepository
 import com.example.m3showcase.core.domain.repository.TransferRepository
 import kotlinx.coroutines.flow.Flow
@@ -99,4 +100,5 @@ class SettingsRepositoryImpl(
     override suspend fun setThemeMode(mode: ThemeMode) = local.setThemeMode(mode)
     override suspend fun setBalanceHidden(hidden: Boolean) = local.setBalanceHidden(hidden)
     override suspend fun setEventTheme(theme: EventTheme) = local.setEventTheme(theme)
+    override suspend fun setSessionTimeout(timeout: SessionTimeout) = local.setSessionTimeout(timeout)
 }

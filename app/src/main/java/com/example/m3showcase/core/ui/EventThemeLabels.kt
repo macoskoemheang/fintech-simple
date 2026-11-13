@@ -3,6 +3,7 @@ package com.example.m3showcase.core.ui
 import com.example.m3showcase.core.domain.model.CalendarDate
 import com.example.m3showcase.core.domain.model.EventTheme
 import com.example.m3showcase.core.domain.model.FestivalWindow
+import com.example.m3showcase.core.domain.model.SessionTimeout
 
 val EventTheme.displayName: String
     get() = when (this) {
@@ -50,3 +51,11 @@ fun FestivalWindow.holidayLabel(): String = when {
     holidayStart.month == holidayEnd.month -> "${holidayStart.day}–${holidayEnd.short()} ${holidayEnd.year}"
     else -> "${holidayStart.short()} – ${holidayEnd.short()} ${holidayEnd.year}"
 }
+
+val SessionTimeout.displayName: String
+    get() = when (this) {
+        SessionTimeout.FiveSeconds -> "5 seconds (testing)"
+        SessionTimeout.FiveMinutes -> "5 minutes"
+        SessionTimeout.TenMinutes -> "10 minutes"
+        SessionTimeout.FifteenMinutes -> "15 minutes"
+    }

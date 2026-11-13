@@ -7,6 +7,8 @@ import com.example.m3showcase.core.designsystem.component.ConnectivityBannerStat
 import com.example.m3showcase.core.domain.model.EventTheme
 import com.example.m3showcase.core.domain.model.ThemeMode
 import com.example.m3showcase.core.domain.usecase.ResolveEventThemeUseCase
+import com.example.m3showcase.core.domain.usecase.CheckSessionExpiryUseCase
+import com.example.m3showcase.core.domain.usecase.RecordUserActivityUseCase
 import com.example.m3showcase.core.domain.usecase.ObserveNetworkStatusUseCase
 import com.example.m3showcase.core.domain.usecase.ObserveSessionUseCase
 import com.example.m3showcase.core.domain.usecase.ObserveSettingsUseCase
@@ -38,7 +40,15 @@ class MainViewModel(
     observeSession: ObserveSessionUseCase,
     observeNetworkStatus: ObserveNetworkStatusUseCase,
     resolveEventTheme: ResolveEventThemeUseCase,
+    private val recordUserActivity: RecordUserActivityUseCase,
+    private val checkSessionExpiry: CheckSessionExpiryUseCase,
 ) : ViewModel() {
+
+    /** Any touch or key press restarts the session-timeout countdown. */
+    fun onUserInteraction() = recordUserActivity()
+
+    /** Back from background: lock immediately if the user was away longer than the timeout. */
+    fun onAppForegrounded() = checkSessionExpiry()
 
     // Auto is resolved when settings emit, i.e. on app start and on every theme change.
     // That's enough for festivals measured in days; no midnight timer needed.

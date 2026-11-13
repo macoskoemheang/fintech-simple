@@ -18,6 +18,11 @@ import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.LightMode
 import androidx.compose.material.icons.rounded.PhoneAndroid
+import androidx.compose.material.icons.rounded.Timer
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material3.RadioButton
+import androidx.compose.ui.semantics.Role
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -49,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.m3showcase.core.designsystem.component.LoadingState
 import com.example.m3showcase.core.domain.model.EventTheme
+import com.example.m3showcase.core.domain.model.SessionTimeout
 import com.example.m3showcase.core.domain.model.ThemeMode
 import com.example.m3showcase.core.ui.displayName
 import com.example.m3showcase.core.domain.model.UserProfile
@@ -97,6 +103,45 @@ fun SettingsScreen(state: SettingsViewState, onAction: (SettingsViewAction) -> U
             dismissButton = { TextButton(onClick = { onAction(SettingsViewAction.OnLogoutDismissed) }) { Text("Cancel") } },
         )
     }
+    if (state is SettingsViewState.Success && state.showSessionTimeoutDialog) {
+        SessionTimeoutDialog(selected = state.sessionTimeout, onAction = onAction)
+    }
+}
+
+@Composable
+private fun SessionTimeoutDialog(selected: SessionTimeout, onAction: (SettingsViewAction) -> Unit) {
+    AlertDialog(
+        onDismissRequest = { onAction(SettingsViewAction.OnSessionTimeoutDismissed) },
+        icon = { Icon(Icons.Rounded.Timer, null) },
+        title = { Text("Auto-lock") },
+        text = {
+            Column(Modifier.selectableGroup()) {
+                Text(
+                    "Lock the app and ask for your PIN after this much time without activity.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
+                SessionTimeout.entries.forEach { option ->
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .selectable(
+                                selected = option == selected,
+                                role = Role.RadioButton,
+                                onClick = { onAction(SettingsViewAction.OnSessionTimeoutSelected(option)) },
+                            )
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        RadioButton(selected = option == selected, onClick = null) // Row handles the click.
+                        Text(option.displayName, Modifier.padding(start = 12.dp))
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = { TextButton(onClick = { onAction(SettingsViewAction.OnSessionTimeoutDismissed) }) { Text("Cancel") } },
+    )
 }
 
 @Composable
@@ -130,7 +175,15 @@ private fun SettingsContent(state: SettingsViewState.Success, onAction: (Setting
             )
         }
 
-        SettingsSection("Privacy") {
+        SettingsSection("Privacy & security") {
+            ListItem(
+                modifier = Modifier.clickable { onAction(SettingsViewAction.OnSessionTimeoutClicked) },
+                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                leadingContent = { Icon(Icons.Rounded.Timer, null) },
+                headlineContent = { Text("Auto-lock") },
+                supportingContent = { Text("After ${state.sessionTimeout.displayName} of inactivity") },
+                trailingContent = { Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null) },
+            )
             ListItem(
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                 leadingContent = { Icon(Icons.Rounded.VisibilityOff, null) },

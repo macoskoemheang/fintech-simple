@@ -14,14 +14,17 @@ import com.example.m3showcase.core.designsystem.isDark
 import com.example.m3showcase.main.BankApp
 import com.example.m3showcase.main.MainUiState
 import com.example.m3showcase.main.MainViewModel
-import org.koin.androidx.compose.koinViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
+
+    // Activity-scoped so the Activity callbacks below and Compose share one instance.
+    private val viewModel: MainViewModel by viewModel()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val viewModel: MainViewModel = koinViewModel()
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             val banner by viewModel.connectivityBanner.collectAsStateWithLifecycle()
 
@@ -41,6 +44,17 @@ class MainActivity : ComponentActivity() {
                 BankApp(isLoggedIn = ready.isLoggedIn, bannerState = banner)
             }
         }
+    }
+
+    /** Called by the framework on touch-down and key-down only (not every move), so it's cheap. */
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        viewModel.onUserInteraction()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.onAppForegrounded()
     }
 
     private companion object {
