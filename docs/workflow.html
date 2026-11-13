@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>M3 Showcase Workflow</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout: navy hero band like the app's Home header, then a live map (screens lane over an
+   "under the hood" lane) beside a narration panel that steps through one journey. */
+:root {
+  --bg: #EDF2F7;
+  --surface: #FFFFFF;
+  --ink: #0E2236;
+  --muted: #55697D;
+  --line: #C4D2E0;
+  --lane: rgba(10, 46, 77, 0.035);
+  --sys: #E3ECF4;
+  --accent: #0086A6;
+  --accent-soft: rgba(0, 134, 166, 0.12);
+  --glow: rgba(0, 169, 204, 0.55);
+  --hero-1: #0A2E4D;
+  --hero-2: #12426B;
+  --hero-ink: #FFFFFF;
+  --hero-cyan: #6FD8F0;
+  --font-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #06121D; --surface: #0D1F30; --ink: #E2EDF6; --muted: #8DA3B7; --line: #22405B;
+    --lane: rgba(255, 255, 255, 0.025); --sys: #0A2638; --accent: #4FD3EE;
+    --accent-soft: rgba(79, 211, 238, 0.14); --glow: rgba(79, 211, 238, 0.6);
+    --hero-1: #041A2E; --hero-2: #0A2E4D; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #06121D; --surface: #0D1F30; --ink: #E2EDF6; --muted: #8DA3B7; --line: #22405B;
+  --lane: rgba(255, 255, 255, 0.025); --sys: #0A2638; --accent: #4FD3EE;
+  --accent-soft: rgba(79, 211, 238, 0.14); --glow: rgba(79, 211, 238, 0.6);
+  --hero-1: #041A2E; --hero-2: #0A2E4D; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.55; }
+
+.band { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 1240px; margin: 0 auto; }
+
+/* Hero */
+.hero { background: linear-gradient(160deg, var(--hero-1), var(--hero-2)); color: var(--hero-ink); padding-block: 36px 30px; position: relative; overflow: hidden; }
+.hero::after { content: ""; position: absolute; width: 520px; height: 520px; right: -140px; top: -260px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(111, 216, 240, 0.28), transparent 65%); pointer-events: none; }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--hero-cyan); margin: 0 0 10px; }
+.hero h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(30px, 4.4vw, 46px); line-height: 1.08; margin: 0 0 12px; text-wrap: balance; }
+.hero p.lead { max-width: 62ch; margin: 0; color: rgba(255, 255, 255, 0.8); font-size: 16px; }
+
+/* Journey picker */
+.picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; position: relative; z-index: 1; }
+.picker button { font: 500 14px var(--font-body); color: var(--hero-ink); background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 999px; padding: 8px 16px; cursor: pointer; transition: background .2s, border-color .2s; }
+.picker button:hover { background: rgba(255, 255, 255, 0.16); }
+.picker button[aria-pressed="true"] { background: var(--hero-cyan); border-color: var(--hero-cyan); color: #041A2E; font-weight: 600; }
+.picker button:focus-visible, .controls button:focus-visible, .steps button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.picker button:focus-visible { outline-color: var(--hero-cyan); }
+
+/* Main layout */
+main { padding-block: 24px 48px; }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 24px; align-items: start; }
+@media (max-width: 960px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+
+.map { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 12px; min-width: 0; }
+.map-scroll { overflow-x: auto; }
+.map svg { display: block; width: 100%; min-width: 660px; height: auto; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 10px 8px 4px; color: var(--muted); font-size: 13px; }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.sw { width: 18px; height: 12px; border-radius: 4px; border: 1.5px solid var(--accent); background: var(--surface); }
+.sw.sys { background: var(--sys); border-color: var(--line); }
+.sw.dot { width: 10px; height: 10px; border-radius: 50%; border: 0; background: var(--accent); box-shadow: 0 0 8px var(--glow); }
+
+/* SVG parts */
+.lane-bg { fill: var(--lane); stroke: var(--line); stroke-dasharray: 4 5; }
+.lane-label { font: 500 11px var(--font-mono); letter-spacing: 0.14em; fill: var(--muted); }
+.node rect.body { fill: var(--surface); stroke: var(--line); stroke-width: 1.25; transition: stroke .3s, fill .3s; }
+.node.screen rect.body { stroke: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.node.sys rect.body { fill: var(--sys); }
+.node .t { font: 600 15px var(--font-display); fill: var(--ink); }
+.node .s { font: 400 11px var(--font-mono); fill: var(--muted); }
+.node { transition: opacity .35s; }
+.node.dim { opacity: 0.3; }
+.node.from rect.body, .node.to rect.body { stroke: var(--accent); stroke-width: 2; }
+.node.to rect.body { fill: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+.node.sys.to rect.body { fill: color-mix(in srgb, var(--accent) 14%, var(--sys)); }
+.node rect.ring { fill: none; stroke: var(--accent); stroke-width: 2; opacity: 0; transform-box: fill-box; transform-origin: center; }
+.node.hit rect.ring { animation: ring .7s ease-out; }
+@keyframes ring { from { opacity: .85; transform: scale(1); } to { opacity: 0; transform: scale(1.28); } }
+.node rect.spin { fill: none; stroke: var(--accent); stroke-width: 2; stroke-dasharray: 6 8; opacity: 0; }
+.node.busy rect.spin { opacity: 1; animation: march 1s linear infinite; }
+@keyframes march { to { stroke-dashoffset: -28; } }
+
+.edge path { fill: none; stroke: var(--line); stroke-width: 1.5; transition: stroke .3s, opacity .3s; }
+.edge polygon { fill: var(--line); transition: fill .3s; }
+.edge.done path { stroke: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.edge.done polygon { fill: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.edge.active path { stroke: var(--accent); stroke-width: 2.5; }
+.edge.active polygon { fill: var(--accent); }
+#dot { fill: var(--accent); filter: url(#glow); }
+#dotCore { fill: #FFFFFF; }
+
+/* Narration panel */
+.panel { display: grid; gap: 16px; min-width: 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 20px; min-width: 0; }
+.card h2 { font: 600 22px var(--font-display); margin: 0 0 6px; text-wrap: balance; }
+.card .sum { color: var(--muted); margin: 0; }
+.now { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.count { font: 500 12px var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin: 0 0 6px; font-variant-numeric: tabular-nums; }
+.now h3 { font: 600 19px var(--font-display); margin: 0 0 8px; text-wrap: balance; }
+.now p { margin: 0; }
+.code { display: inline-block; margin-top: 12px; font: 400 12px var(--font-mono); color: var(--muted); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; overflow-wrap: anywhere; }
+.progress { height: 4px; background: var(--line); border-radius: 4px; margin-top: 16px; overflow: hidden; }
+.progress i { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 4px; }
+
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.controls button { font: 500 14px var(--font-body); color: var(--ink); background: var(--bg); border: 1px solid var(--line);
+  border-radius: 10px; padding: 8px 14px; cursor: pointer; }
+.controls button:hover { border-color: var(--accent); }
+.controls button.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); font-weight: 600; min-width: 88px; }
+.speed { display: inline-flex; margin-left: auto; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.speed button { border: 0; border-radius: 0; padding: 8px 10px; background: transparent; font-variant-numeric: tabular-nums; }
+.speed button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: s; }
+.steps li { counter-increment: s; }
+.steps button { width: 100%; text-align: left; display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; align-items: baseline;
+  font: 400 14px var(--font-body); color: var(--muted); background: transparent; border: 0; border-radius: 10px; padding: 7px 8px; cursor: pointer; }
+.steps button::before { content: counter(s, decimal-leading-zero); font: 500 12px var(--font-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.steps button:hover { background: var(--bg); color: var(--ink); }
+.steps li.past button { color: var(--ink); }
+.steps li[aria-current="step"] button { background: var(--accent-soft); color: var(--ink); font-weight: 600; }
+.steps li[aria-current="step"] button::before { color: var(--accent); }
+.hint { color: var(--muted); font-size: 13px; margin: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .node.hit rect.ring, .node.busy rect.spin { animation: none; }
+  .picker button, .node, .edge path { transition: none; }
+}
+</style>
+</head>
+<body>
+<header class="hero band">
+  <div class="wrap">
+    <p class="eyebrow">M3 Showcase · Android · Jetpack Compose</p>
+    <h1>How the banking app works</h1>
+    <p class="lead">Watch one tap move through the app. Screens sit on top, and the code that serves them sits underneath. Pick a journey, then play it or step through it.</p>
+    <div class="picker" id="picker" role="group" aria-label="Choose a journey"></div>
+  </div>
+</header>
+
+<main class="band">
+  <div class="wrap layout">
+    <section class="map" aria-label="Animated app map">
+      <div class="map-scroll">
+        <svg id="svg" viewBox="0 0 1000 620" role="img" aria-labelledby="mapTitle">
+          <title id="mapTitle">Map of the app's screens and the layers under them, with the selected journey highlighted</title>
+          <defs>
+            <filter id="glow" x="-200%" y="-200%" width="500%" height="500%">
+              <feGaussianBlur stdDeviation="4" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <rect class="lane-bg" x="10" y="36" width="980" height="262" rx="18"/>
+          <text class="lane-label" x="30" y="60">SCREENS</text>
+          <rect class="lane-bg" x="10" y="318" width="980" height="290" rx="18"/>
+          <text class="lane-label" x="30" y="342">UNDER THE HOOD</text>
+          <g id="edges"></g>
+          <g id="nodes"></g>
+          <circle id="dot" r="8" cx="-50" cy="-50"/>
+          <circle id="dotCore" r="3" cx="-50" cy="-50"/>
+        </svg>
+      </div>
+      <div class="legend">
+        <span><i class="sw"></i>Screen the user sees</span>
+        <span><i class="sw sys"></i>Code that runs behind it</span>
+        <span><i class="sw dot"></i>One message moving through the app</span>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="card">
+        <h2 id="scTitle"></h2>
+        <p class="sum" id="scSum"></p>
+      </div>
+      <div class="card now" aria-live="polite">
+        <p class="count" id="count"></p>
+        <h3 id="stTitle"></h3>
+        <p id="stText"></p>
+        <span class="code" id="stCode"></span>
+        <div class="progress"><i id="bar"></i></div>
+      </div>
+      <div class="controls">
+        <button type="button" id="prev" aria-label="Previous step">Back</button>
+        <button type="button" id="play" class="primary">Pause</button>
+        <button type="button" id="next" aria-label="Next step">Next</button>
+        <div class="speed" role="group" aria-label="Speed">
+          <button type="button" data-speed="0.5">0.5×</button>
+          <button type="button" data-speed="1" aria-pressed="true">1×</button>
+          <button type="button" data-speed="2">2×</button>
+        </div>
+      </div>
+      <div class="card">
+        <ol class="steps" id="steps"></ol>
+      </div>
+      <p class="hint">Keyboard: ← and → step, Space plays or pauses.</p>
+    </aside>
+  </div>
+</main>
+
+<script>
+(() => {
+  const W = 150, H = 58;
+  const N = {
+    start:    { x: 100, y: 110, t: "Launch",     s: "ShowcaseApp",     k: "screen" },
+    login:    { x: 280, y: 110, t: "Login",      s: "PIN pad",         k: "screen" },
+    home:     { x: 470, y: 110, t: "Home",       s: "dashboard",       k: "screen" },
+    transfer: { x: 660, y: 110, t: "Transfer",   s: "form",            k: "screen" },
+    confirm:  { x: 860, y: 110, t: "Confirm",    s: "bottom sheet",    k: "screen" },
+    more:     { x: 280, y: 235, t: "More",       s: "settings",        k: "screen" },
+    accounts: { x: 470, y: 235, t: "Accounts",   s: "tab",             k: "screen" },
+    receipt:  { x: 660, y: 235, t: "Receipt",    s: "result",          k: "screen" },
+    koin:     { x: 100, y: 420, t: "Koin",       s: "DI container",    k: "sys" },
+    vm:       { x: 280, y: 420, t: "ViewModel",  s: "state holder",    k: "sys" },
+    usecase:  { x: 470, y: 420, t: "Use case",   s: "business rule",   k: "sys" },
+    repo:     { x: 660, y: 420, t: "Repository", s: "data access",     k: "sys" },
+    api:      { x: 860, y: 420, t: "Fake API",   s: "700 ms latency",  k: "sys" },
+    timer:    { x: 100, y: 545, t: "Auto-lock",  s: "idle timer",      k: "sys" },
+    datastore:{ x: 280, y: 545, t: "DataStore",  s: "settings file",   k: "sys" },
+    session:  { x: 470, y: 545, t: "Session",    s: "StateFlow",       k: "sys" },
+    cache:    { x: 660, y: 545, t: "Cache",      s: "source of truth", k: "sys" },
+    network:  { x: 860, y: 545, t: "Network",    s: "monitor",         k: "sys" },
+  };
+
+  // [from, to, title, explanation, file]
+  const SC = [
+    { name: "Launch and sign in", summary: "From a cold start to a loaded Home screen with the demo PIN 1234.", steps: [
+      ["start", "koin", "Start Koin", "ShowcaseApp.onCreate starts Koin with the core module, the main module and 8 feature modules.", "ShowcaseApp.kt"],
+      ["koin", "vm", "Wait for settings", "MainActivity gets MainViewModel. While its state is Loading nothing is drawn, so the theme never flashes.", "main/MainViewModel.kt"],
+      ["datastore", "vm", "Theme arrives", "Theme mode and festival skin stream in from DataStore. Auto turns into today's festival or the classic look.", "SettingsLocalDataSource.kt"],
+      ["vm", "login", "No session, show Login", "The state is Ready with isLoggedIn = false, so BankApp keeps the back stack at [Login].", "main/BankApp.kt"],
+      ["login", "vm", "Type the PIN", "Each key gives a short vibration. The 4th digit submits on its own.", "auth/LoginScreen.kt"],
+      ["vm", "usecase", "Check the format", "LoginWithPinUseCase rejects anything that is not exactly 4 digits.", "LoginWithPinUseCase.kt"],
+      ["usecase", "repo", "Call the repository", "AuthRepository.login wraps the request in safeApiCall, which turns every exception into a BankError.", "RepositoryImpls.kt"],
+      ["repo", "api", "Ask the server", "The fake API waits 700 ms and accepts 1234. A wrong PIN returns INVALID_PIN, the dots shake and the phone buzzes.", "FakeBankRemoteDataSource.kt"],
+      ["api", "session", "Session starts", "The user profile lands in the session StateFlow.", "RepositoryImpls.kt"],
+      ["session", "home", "Go to Home", "BankApp sees isLoggedIn = true and replaces the stack with [Home]. Login never navigates by itself.", "main/BankApp.kt"],
+      ["home", "repo", "Refresh data", "RefreshBankDataUseCase loads accounts and transactions from the API in parallel.", "SharedUseCases.kt"],
+      ["repo", "cache", "Save to cache", "Both results are written into the in-memory cache.", "BankLocalDataSource.kt"],
+      ["cache", "home", "Show the dashboard", "The cache emits. Home combines accounts, the 5 latest transactions and the hide-balance switch.", "ObserveHomeDashboardUseCase.kt"],
+    ]},
+    { name: "Send money", summary: "A transfer from the Accounts tab to the receipt, with validation and a confirm step.", steps: [
+      ["home", "accounts", "Open Accounts", "The Accounts tab lists each account with its balance and a Transfer button.", "accounts/list"],
+      ["accounts", "transfer", "Start a transfer", "Transfer on a card pushes Transfer(fromAccountId), so the source account is already chosen.", "AppNavigator.kt"],
+      ["transfer", "vm", "Fill the form", "The recipient keeps digits only, up to 9. The amount keeps one decimal point. Continue stays off while offline.", "TransferViewModel.kt"],
+      ["vm", "usecase", "Validate", "ValidateTransferUseCase checks 9 digits, a different account, the currency's decimals, the limit (USD 10,000 or KHR 40,000,000) and the balance.", "ValidateTransferUseCase.kt"],
+      ["usecase", "confirm", "Confirm sheet", "A valid request opens the confirm sheet. A mistake shows under its own field instead.", "TransferScreen.kt"],
+      ["confirm", "repo", "Send", "MakeTransferUseCase calls TransferRepository. A second tap is ignored while it is sending.", "MakeTransferUseCase.kt"],
+      ["repo", "api", "Server processes it", "The fake API takes 1,200 ms and checks the account, the currency and the funds.", "FakeBankRemoteDataSource.kt"],
+      ["api", "cache", "Update balances", "The debit, the credit and the new balances are written into the cache.", "TransferRepositoryImpl"],
+      ["cache", "receipt", "Show the receipt", "The stack becomes [Home, Receipt], so Back can't send the form twice.", "main/BankApp.kt"],
+      ["receipt", "home", "Done", "Close returns to Home, whose balances already updated from the cache.", "ReceiptScreen.kt"],
+    ]},
+    { name: "Auto-lock", summary: "After the chosen idle time the app signs out and shows the PIN screen again.", steps: [
+      ["more", "datastore", "Choose a time", "More, then Auto-lock: 5 seconds (testing), 5, 10 or 15 minutes. Saved as session_timeout.", "SettingsViewModel.kt"],
+      ["datastore", "timer", "Timer reads it", "SessionTimeoutMonitor picks up the new time straight away.", "core/session/SessionTimeoutMonitor.kt"],
+      ["home", "timer", "Every tap resets", "Activity.onUserInteraction fires on each touch. The monitor stores the time of the tap.", "MainActivity.kt"],
+      ["timer", "timer", "Counting down", "The timer waits for the time left. A new tap cancels the wait and starts it again.", "collectLatest + delay"],
+      ["timer", "timer", "Back from background", "onStart compares real elapsed time, sleep included, with the last tap and locks at once if the time is up.", "checkExpired()"],
+      ["timer", "session", "Time's up", "The monitor calls logout(). The session clears and cached account data is wiped.", "AuthRepository.logout"],
+      ["session", "login", "Locked", "BankApp sees isLoggedIn = false and replaces the stack with [Login].", "main/BankApp.kt"],
+    ]},
+    { name: "Offline and back", summary: "What the app does when the connection drops and when it returns.", steps: [
+      ["network", "vm", "Connection lost", "One shared system callback reports Unavailable when there is no validated internet.", "NetworkMonitor.kt"],
+      ["vm", "home", "Offline banner", "MainViewModel shows the Offline banner until the network returns.", "main/MainViewModel.kt"],
+      ["network", "transfer", "Transfers paused", "The Transfer form turns Continue off while offline.", "TransferViewModel.kt"],
+      ["home", "repo", "Refresh tries", "A pull to refresh goes through the repository and safeApiCall.", "SafeApiCall.kt"],
+      ["repo", "api", "No internet", "The fake API throws an IOException, which becomes BankError.NoInternet. Home shows an error with Retry.", "FakeBankRemoteDataSource.kt"],
+      ["network", "vm", "Back online", "The banner says Back online for 2 seconds, then hides.", "main/MainViewModel.kt"],
+      ["network", "home", "Retry on its own", "Home runs the failed refresh again without a tap.", "HomeViewModel.kt"],
+      ["api", "cache", "Fresh data", "This time the refresh succeeds and fills the cache.", "BankLocalDataSource.kt"],
+      ["cache", "home", "Up to date", "Home redraws from the cache.", "HomeScreen.kt"],
+    ]},
+    { name: "One tap, end to end", summary: "The loop every screen follows, from a tap to a redrawn screen.", steps: [
+      ["home", "vm", "Action", "The screen sends an action such as OnRefresh. Screens hold no business logic.", "HomeContract.kt"],
+      ["vm", "usecase", "Use case", "The ViewModel calls one use case. Each use case does one job.", "domain/usecase"],
+      ["usecase", "repo", "Repository", "The use case talks to a domain interface. The data layer implements it.", "domain/repository"],
+      ["repo", "api", "Network", "safeApiCall turns every exception into a BankError the screen can show.", "SafeApiCall.kt"],
+      ["api", "cache", "Cache", "Results go into the cache, the single source of truth.", "BankLocalDataSource.kt"],
+      ["cache", "vm", "Flow emits", "Every ViewModel observing the cache gets the new data.", "StateFlow"],
+      ["vm", "home", "New state", "combine and stateIn produce one ViewState. Compose redraws only what changed.", "HomeViewModel.kt"],
+    ]},
+  ];
+
+  const svgNS = "http://www.w3.org/2000/svg";
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, attrs = {}, parent) => {
+    const e = document.createElementNS(svgNS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  };
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Nodes
+  const nodeEls = {};
+  for (const id in N) {
+    const n = N[id];
+    const g = el("g", { class: "node " + n.k, "data-id": id }, $("nodes"));
+    el("rect", { class: "ring", x: n.x - W / 2, y: n.y - H / 2, width: W, height: H, rx: 14 }, g);
+    el("rect", { class: "body", x: n.x - W / 2, y: n.y - H / 2, width: W, height: H, rx: 14 }, g);
+    el("rect", { class: "spin", x: n.x - W / 2 - 6, y: n.y - H / 2 - 6, width: W + 12, height: H + 12, rx: 18 }, g);
+    const t = el("text", { class: "t", x: n.x, y: n.y - 2, "text-anchor": "middle" }, g); t.textContent = n.t;
+    const s = el("text", { class: "s", x: n.x, y: n.y + 16, "text-anchor": "middle" }, g); s.textContent = n.s;
+    nodeEls[id] = g;
+  }
+
+  const curve = (a, b) => {
+    const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
+    const off = Math.min(90, Math.max(22, len * 0.24));
+    const cx = (a.x + b.x) / 2 + (-dy / len) * off, cy = (a.y + b.y) / 2 + (dx / len) * off;
+    return `M${a.x} ${a.y} Q${cx} ${cy} ${b.x} ${b.y}`;
+  };
+  const inside = (p, n, pad) => Math.abs(p.x - n.x) <= W / 2 + pad && Math.abs(p.y - n.y) <= H / 2 + pad;
+
+  let sc = 0, st = 0, playing = !reduced, speed = 1;
+  let raf = 0, timer = 0, edgeEls = {};
+
+  function buildScenario() {
+    const edges = $("edges");
+    edges.textContent = "";
+    edgeEls = {};
+    const used = new Set();
+    for (const [f, t] of SC[sc].steps) {
+      used.add(f); used.add(t);
+      const key = f + ">" + t;
+      if (f === t || edgeEls[key]) continue;
+      const g = el("g", { class: "edge" }, edges);
+      const p = el("path", { d: curve(N[f], N[t]) }, g);
+      // Arrowhead where the curve meets the target box.
+      const L = p.getTotalLength();
+      let s = L;
+      while (s > 0 && inside(p.getPointAtLength(s), N[t], 4)) s -= 2;
+      const tip = p.getPointAtLength(s), back = p.getPointAtLength(Math.max(0, s - 9));
+      const ang = Math.atan2(tip.y - back.y, tip.x - back.x);
+      const pt = (r, a) => `${tip.x - r * Math.cos(ang + a)},${tip.y - r * Math.sin(ang + a)}`;
+      el("polygon", { points: `${tip.x},${tip.y} ${pt(10, 0.42)} ${pt(10, -0.42)}` }, g);
+      edgeEls[key] = { g, p, L: s };
+    }
+    for (const id in nodeEls) nodeEls[id].classList.toggle("dim", !used.has(id));
+
+    document.querySelectorAll("#picker button").forEach((b, i) => b.setAttribute("aria-pressed", String(i === sc)));
+    $("scTitle").textContent = SC[sc].name;
+    $("scSum").textContent = SC[sc].summary;
+    const list = $("steps");
+    list.textContent = "";
+    SC[sc].steps.forEach((s, i) => {
+      const li = document.createElement("li");
+      const b = document.createElement("button");
+      b.type = "button"; b.textContent = s[2];
+      b.addEventListener("click", () => go(i));
+      li.appendChild(b); list.appendChild(li);
+    });
+  }
+
+  function stopTimers() { cancelAnimationFrame(raf); clearTimeout(timer); }
+
+  function go(i) {
+    stopTimers();
+    const steps = SC[sc].steps;
+    st = (i + steps.length) % steps.length;
+    const [f, t, title, text, code] = steps[st];
+
+    for (const k in edgeEls) {
+      edgeEls[k].g.classList.remove("done", "active");
+      edgeEls[k].p.style.strokeDasharray = "";
+      edgeEls[k].p.style.strokeDashoffset = "";
+    }
+    steps.slice(0, st).forEach(([a, b]) => edgeEls[a + ">" + b]?.g.classList.add("done"));
+    for (const id in nodeEls) nodeEls[id].classList.remove("from", "to", "busy", "hit");
+    nodeEls[f].classList.add("from");
+    nodeEls[t].classList.add("to");
+
+    document.querySelectorAll("#steps li").forEach((li, j) => {
+      li.classList.toggle("past", j < st);
+      if (j === st) li.setAttribute("aria-current", "step"); else li.removeAttribute("aria-current");
+    });
+    $("count").textContent = `Step ${st + 1} of ${steps.length}`;
+    $("stTitle").textContent = title;
+    $("stText").textContent = text;
+    $("stCode").textContent = code;
+    $("bar").style.width = `${((st + 1) / steps.length) * 100}%`;
+
+    const travel = reduced ? 0 : 1000 / speed;
+    const hold = 3600 / speed;
+    const dot = $("dot"), core = $("dotCore");
+    const place = (p) => { for (const c of [dot, core]) { c.setAttribute("cx", p.x); c.setAttribute("cy", p.y); } };
+    const arrive = () => {
+      const n = nodeEls[t];
+      n.classList.remove("hit"); void n.getBoundingClientRect(); n.classList.add("hit");
+      if (playing) timer = setTimeout(() => go(st + 1 === steps.length ? 0 : st + 1), st + 1 === steps.length ? hold + 1200 / speed : hold);
+    };
+
+    if (f === t) {
+      place(N[t]);
+      nodeEls[t].classList.add("busy");
+      if (playing) timer = setTimeout(() => go(st + 1 === steps.length ? 0 : st + 1), hold + 600 / speed);
+      return;
+    }
+    const e = edgeEls[f + ">" + t];
+    e.g.classList.add("active");
+    const path = e.p, full = path.getTotalLength();
+    path.style.strokeDasharray = `${full}`;
+    if (travel === 0) { path.style.strokeDashoffset = "0"; place(path.getPointAtLength(e.L)); arrive(); return; }
+    const t0 = performance.now();
+    const tick = (now) => {
+      const k = Math.min(1, (now - t0) / travel);
+      const ease = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+      path.style.strokeDashoffset = `${full * (1 - ease)}`;
+      place(path.getPointAtLength(e.L * ease));
+      if (k < 1) raf = requestAnimationFrame(tick); else arrive();
+    };
+    path.style.strokeDashoffset = `${full}`;
+    raf = requestAnimationFrame(tick);
+  }
+
+  function setPlaying(p) {
+    playing = p;
+    $("play").textContent = p ? "Pause" : "Play";
+    go(st);
+  }
+
+  // Picker
+  SC.forEach((s, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.textContent = s.name;
+    b.addEventListener("click", () => { sc = i; buildScenario(); go(0); });
+    $("picker").appendChild(b);
+  });
+
+  $("play").addEventListener("click", () => setPlaying(!playing));
+  $("prev").addEventListener("click", () => go(st - 1));
+  $("next").addEventListener("click", () => go(st + 1));
+  document.querySelectorAll(".speed button").forEach((b) => b.addEventListener("click", () => {
+    speed = Number(b.dataset.speed);
+    document.querySelectorAll(".speed button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    go(st);
+  }));
+  document.addEventListener("keydown", (ev) => {
+    if (ev.target.closest && ev.target.closest("button, input, select, textarea")) return;
+    if (ev.key === "ArrowRight") go(st + 1);
+    else if (ev.key === "ArrowLeft") go(st - 1);
+    else if (ev.key === " ") { ev.preventDefault(); setPlaying(!playing); }
+  });
+
+  $("play").textContent = playing ? "Pause" : "Play";
+  buildScenario();
+  go(0);
+})();
+</script>
+</body>
+</html>
