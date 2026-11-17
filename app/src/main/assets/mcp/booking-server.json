@@ -1,0 +1,343 @@
+{
+  "$comment": "Definition of the Booking MCP server: what it says in the MCP handshake, the tools it offers (with JSON Schema inputs), and the mock data it serves. All names and places are fictional.",
+  "protocolVersion": "2025-06-18",
+  "serverInfo": {
+    "name": "booking-mcp-server",
+    "title": "Booking MCP Server",
+    "version": "1.0.0"
+  },
+  "capabilities": {
+    "tools": { "listChanged": false }
+  },
+  "instructions": "Search listings first, then call check_availability for a quote before create_booking. Dates are ISO-8601 (YYYY-MM-DD). Money is in minor units (cents).",
+
+  "tools": [
+    {
+      "name": "search_listings",
+      "title": "Search listings",
+      "description": "Find hotels, resorts, tours and restaurants. Every argument is optional; with none it returns everything.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": { "type": "string", "description": "Free text matched against name, city and description" },
+          "category": { "type": "string", "enum": ["HOTEL", "RESORT", "TOUR", "DINING"] },
+          "city": { "type": "string", "description": "Exact city name, e.g. Siem Reap" },
+          "guests": { "type": "integer", "minimum": 1, "description": "Only listings that fit this many guests" }
+        }
+      },
+      "example": { "query": "angkor", "category": "TOUR" }
+    },
+    {
+      "name": "get_listing",
+      "title": "Get listing",
+      "description": "Full details of one listing.",
+      "inputSchema": {
+        "type": "object",
+        "properties": { "listingId": { "type": "string" } },
+        "required": ["listingId"]
+      },
+      "example": { "listingId": "lst-angkor-lodge" }
+    },
+    {
+      "name": "check_availability",
+      "title": "Check availability",
+      "description": "Checks the dates and guest count and returns a price quote. Tours and dining are priced per person and always use 1 night.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "listingId": { "type": "string" },
+          "checkIn": { "type": "string", "format": "date" },
+          "nights": { "type": "integer", "minimum": 1, "maximum": 30 },
+          "guests": { "type": "integer", "minimum": 1 }
+        },
+        "required": ["listingId", "checkIn", "nights", "guests"]
+      },
+      "example": { "listingId": "lst-angkor-lodge", "checkIn": "2026-12-20", "nights": 2, "guests": 2 }
+    },
+    {
+      "name": "create_booking",
+      "title": "Create booking",
+      "description": "Books a listing. Fails with NOT_AVAILABLE when the dates are taken.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "listingId": { "type": "string" },
+          "checkIn": { "type": "string", "format": "date" },
+          "nights": { "type": "integer", "minimum": 1, "maximum": 30 },
+          "guests": { "type": "integer", "minimum": 1 },
+          "guestName": { "type": "string", "minLength": 1 },
+          "note": { "type": "string" }
+        },
+        "required": ["listingId", "checkIn", "nights", "guests", "guestName"]
+      },
+      "example": { "listingId": "lst-tonle-sap", "checkIn": "2026-12-05", "nights": 1, "guests": 2, "guestName": "Sok Dara" }
+    },
+    {
+      "name": "list_bookings",
+      "title": "List bookings",
+      "description": "The user's bookings, newest stay first.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string", "enum": ["CONFIRMED", "COMPLETED", "CANCELLED"] }
+        }
+      },
+      "example": { "status": "CONFIRMED" }
+    },
+    {
+      "name": "get_booking",
+      "title": "Get booking",
+      "description": "One booking with its listing.",
+      "inputSchema": {
+        "type": "object",
+        "properties": { "bookingId": { "type": "string" } },
+        "required": ["bookingId"]
+      },
+      "example": { "bookingId": "bk-1001" }
+    },
+    {
+      "name": "cancel_booking",
+      "title": "Cancel booking",
+      "description": "Cancels an upcoming confirmed booking. Free-cancellation listings are refunded in full; non-refundable ones are not.",
+      "inputSchema": {
+        "type": "object",
+        "properties": { "bookingId": { "type": "string" } },
+        "required": ["bookingId"]
+      },
+      "example": { "bookingId": "bk-1002" }
+    }
+  ],
+
+  "mockData": {
+    "currency": "USD",
+    "taxRateBasisPoints": 1000,
+    "listings": [
+      {
+        "id": "lst-mekong-riverside",
+        "name": "Mekong Riverside Hotel",
+        "category": "HOTEL",
+        "city": "Phnom Penh",
+        "address": "Sisowath Quay, Daun Penh",
+        "rating": 4.6,
+        "reviewCount": 1284,
+        "priceMinor": 8900,
+        "unit": "NIGHT",
+        "maxGuests": 3,
+        "cancellation": "FREE_48H",
+        "description": "Boutique rooms facing the river, a rooftop bar at sunset and the Royal Palace a ten-minute walk away.",
+        "amenities": ["WIFI", "BREAKFAST", "POOL", "GYM"],
+        "blockedDates": ["2026-12-31", "2027-01-01"]
+      },
+      {
+        "id": "lst-royal-lotus",
+        "name": "Royal Lotus Residence",
+        "category": "HOTEL",
+        "city": "Phnom Penh",
+        "address": "Street 240, Chey Chumneas",
+        "rating": 4.8,
+        "reviewCount": 642,
+        "priceMinor": 15500,
+        "unit": "NIGHT",
+        "maxGuests": 4,
+        "cancellation": "FREE_48H",
+        "description": "Colonial-era villa turned suite hotel, with a saltwater pool hidden in a frangipani garden.",
+        "amenities": ["WIFI", "BREAKFAST", "POOL", "SPA", "AIRPORT_TRANSFER"],
+        "blockedDates": []
+      },
+      {
+        "id": "lst-angkor-lodge",
+        "name": "Angkor Jungle Lodge",
+        "category": "RESORT",
+        "city": "Siem Reap",
+        "address": "Charles de Gaulle Road, Krong Siem Reap",
+        "rating": 4.9,
+        "reviewCount": 918,
+        "priceMinor": 14500,
+        "unit": "NIGHT",
+        "maxGuests": 2,
+        "cancellation": "FREE_48H",
+        "description": "Stilted wooden villas in the forest edge of the Angkor park, with bikes and a guide for temple mornings.",
+        "amenities": ["WIFI", "BREAKFAST", "POOL", "SPA", "BIKES"],
+        "blockedDates": ["2026-12-24", "2026-12-25", "2026-12-26"]
+      },
+      {
+        "id": "lst-cardamom-camp",
+        "name": "Cardamom Wild Camp",
+        "category": "RESORT",
+        "city": "Koh Kong",
+        "address": "Southern Cardamom National Park",
+        "rating": 4.8,
+        "reviewCount": 311,
+        "priceMinor": 32000,
+        "unit": "NIGHT",
+        "maxGuests": 2,
+        "cancellation": "NON_REFUNDABLE",
+        "description": "Luxury tents above a waterfall river. All meals, zip-lining and ranger-led treks are included.",
+        "amenities": ["ALL_INCLUSIVE", "SPA", "AIRPORT_TRANSFER"],
+        "blockedDates": []
+      },
+      {
+        "id": "lst-coral-villas",
+        "name": "Koh Rong Coral Villas",
+        "category": "RESORT",
+        "city": "Koh Rong",
+        "address": "Sok San Beach",
+        "rating": 4.7,
+        "reviewCount": 507,
+        "priceMinor": 19800,
+        "unit": "NIGHT",
+        "maxGuests": 4,
+        "cancellation": "FREE_48H",
+        "description": "Beach villas with private plunge pools, a coral reef for snorkelling right off the jetty.",
+        "amenities": ["WIFI", "BREAKFAST", "POOL", "BEACH"],
+        "blockedDates": ["2027-01-01"]
+      },
+      {
+        "id": "lst-kep-bungalows",
+        "name": "Kep Seaside Bungalows",
+        "category": "RESORT",
+        "city": "Kep",
+        "address": "Crab Market Road, Kep",
+        "rating": 4.5,
+        "reviewCount": 389,
+        "priceMinor": 6400,
+        "unit": "NIGHT",
+        "maxGuests": 3,
+        "cancellation": "FREE_48H",
+        "description": "Garden bungalows a short walk from the crab market, hammocks included.",
+        "amenities": ["WIFI", "BREAKFAST", "BEACH"],
+        "blockedDates": []
+      },
+      {
+        "id": "lst-angkor-sunrise",
+        "name": "Angkor Sunrise Bike Tour",
+        "category": "TOUR",
+        "city": "Siem Reap",
+        "address": "Pick-up from your hotel at 4:30",
+        "rating": 4.9,
+        "reviewCount": 3107,
+        "priceMinor": 3500,
+        "unit": "PERSON",
+        "maxGuests": 12,
+        "cancellation": "FREE_48H",
+        "description": "Sunrise at Angkor Wat, then quiet back roads by bike to Bayon and Ta Prohm with a local guide.",
+        "amenities": ["GUIDE", "BREAKFAST", "BIKES"],
+        "blockedDates": []
+      },
+      {
+        "id": "lst-tonle-sap",
+        "name": "Tonle Sap Floating Village Cruise",
+        "category": "TOUR",
+        "city": "Siem Reap",
+        "address": "Chong Khneas pier",
+        "rating": 4.6,
+        "reviewCount": 976,
+        "priceMinor": 2800,
+        "unit": "PERSON",
+        "maxGuests": 10,
+        "cancellation": "FREE_48H",
+        "description": "A half-day boat trip through stilt villages and flooded forest on Southeast Asia's largest lake.",
+        "amenities": ["GUIDE", "AIRPORT_TRANSFER"],
+        "blockedDates": ["2026-12-01"]
+      },
+      {
+        "id": "lst-kampot-pepper",
+        "name": "Kampot Pepper Farm Day Trip",
+        "category": "TOUR",
+        "city": "Kampot",
+        "address": "Pick-up in Kampot town",
+        "rating": 4.7,
+        "reviewCount": 633,
+        "priceMinor": 4200,
+        "unit": "PERSON",
+        "maxGuests": 8,
+        "cancellation": "NON_REFUNDABLE",
+        "description": "Pepper farm tasting, the salt fields and a sunset boat on the Kampot river.",
+        "amenities": ["GUIDE", "LUNCH"],
+        "blockedDates": []
+      },
+      {
+        "id": "lst-lotus-kitchen",
+        "name": "Lotus Khmer Kitchen",
+        "category": "DINING",
+        "city": "Phnom Penh",
+        "address": "Street 278, BKK1",
+        "rating": 4.7,
+        "reviewCount": 2148,
+        "priceMinor": 3800,
+        "unit": "PERSON",
+        "maxGuests": 10,
+        "cancellation": "FREE_48H",
+        "description": "A seven-course modern Khmer tasting menu: fish amok, lotus root salad and palm sugar desserts.",
+        "amenities": ["SET_MENU", "VEGETARIAN"],
+        "blockedDates": []
+      },
+      {
+        "id": "lst-prahok-spice",
+        "name": "Prahok & Spice Tasting Room",
+        "category": "DINING",
+        "city": "Siem Reap",
+        "address": "Wat Damnak area",
+        "rating": 4.8,
+        "reviewCount": 1306,
+        "priceMinor": 4800,
+        "unit": "PERSON",
+        "maxGuests": 8,
+        "cancellation": "FREE_48H",
+        "description": "Seasonal menu cooked over charcoal, with produce from the chef's own farm.",
+        "amenities": ["SET_MENU", "WINE_PAIRING"],
+        "blockedDates": ["2026-12-24"]
+      }
+    ],
+    "bookings": [
+      {
+        "id": "bk-1001",
+        "listingId": "lst-coral-villas",
+        "checkIn": "2026-12-20",
+        "nights": 3,
+        "guests": 2,
+        "guestName": "Sok Dara",
+        "note": "Late check-in, arriving on the last ferry.",
+        "status": "CONFIRMED",
+        "confirmationCode": "BKH-7Q2M4",
+        "createdAt": "2026-11-02"
+      },
+      {
+        "id": "bk-1002",
+        "listingId": "lst-tonle-sap",
+        "checkIn": "2026-11-29",
+        "nights": 1,
+        "guests": 4,
+        "guestName": "Sok Dara",
+        "note": "",
+        "status": "CONFIRMED",
+        "confirmationCode": "BKH-3TR8K",
+        "createdAt": "2026-11-10"
+      },
+      {
+        "id": "bk-0987",
+        "listingId": "lst-mekong-riverside",
+        "checkIn": "2026-10-03",
+        "nights": 2,
+        "guests": 2,
+        "guestName": "Sok Dara",
+        "note": "",
+        "status": "COMPLETED",
+        "confirmationCode": "BKH-9LW2C",
+        "createdAt": "2026-09-18"
+      },
+      {
+        "id": "bk-0950",
+        "listingId": "lst-lotus-kitchen",
+        "checkIn": "2026-09-14",
+        "nights": 1,
+        "guests": 3,
+        "guestName": "Sok Dara",
+        "note": "Window table, please.",
+        "status": "CANCELLED",
+        "confirmationCode": "BKH-1HX6P",
+        "createdAt": "2026-09-01"
+      }
+    ]
+  }
+}
