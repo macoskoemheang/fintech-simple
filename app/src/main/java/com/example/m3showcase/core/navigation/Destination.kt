@@ -35,4 +35,10 @@ sealed interface Destination : NavKey {
     @Serializable data object Locator : Destination
     @Serializable data object Theme : Destination
     @Serializable data object Showcase : Destination
+
+    // Booking, served by the Booking MCP server
+    @Serializable data object BookingHub : Destination
+    @Serializable data class BookingListing(val listingId: String) : Destination
+    @Serializable data class BookingDetail(val bookingId: String, val isNew: Boolean = false) : Destination
+    @Serializable data object McpInspector : Destination
 }

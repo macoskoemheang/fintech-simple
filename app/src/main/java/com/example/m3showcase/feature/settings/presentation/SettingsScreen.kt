@@ -18,6 +18,7 @@ import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.LightMode
+import androidx.compose.material.icons.rounded.Luggage
 import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.foundation.selection.selectable
@@ -71,6 +72,7 @@ import com.example.m3showcase.core.language.endonym
 fun SettingsRoute(
     onOpenTheme: () -> Unit,
     onOpenShowcase: () -> Unit,
+    onOpenBooking: () -> Unit,
     viewModel: SettingsViewModel = koinViewModel(),
 ) {
     val state by viewModel.viewState.collectAsStateWithLifecycle()
@@ -79,6 +81,7 @@ fun SettingsRoute(
             when (event) {
                 SettingsEvent.OpenTheme -> onOpenTheme()
                 SettingsEvent.OpenShowcase -> onOpenShowcase()
+                SettingsEvent.OpenBooking -> onOpenBooking()
             }
         }
     }
@@ -223,6 +226,15 @@ private fun SettingsContent(state: SettingsViewState.Success, onAction: (Setting
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                 leadingContent = { Icon(Icons.Rounded.AutoAwesome, null) },
                 headlineContent = { Text(stringResource(R.string.settings_showcase)) },
+                trailingContent = { Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null) },
+            )
+            // Booking app, connected through the Booking MCP server (mock data).
+            ListItem(
+                modifier = Modifier.clickable { onAction(SettingsViewAction.OnOpenBookingClicked) },
+                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                leadingContent = { Icon(Icons.Rounded.Luggage, null) },
+                headlineContent = { Text(stringResource(R.string.settings_booking)) },
+                supportingContent = { Text(stringResource(R.string.settings_booking_desc)) },
                 trailingContent = { Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null) },
             )
         }

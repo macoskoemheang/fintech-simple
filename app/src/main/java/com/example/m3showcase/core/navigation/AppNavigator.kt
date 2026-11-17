@@ -25,6 +25,12 @@ class AppNavigator(private val backStack: NavBackStack<NavKey>) {
         replaceAll(if (destination == Destination.Home) listOf(Destination.Home) else listOf(Destination.Home, destination))
     }
 
+    /** Swaps the top screen, e.g. the booking form for its confirmation, so Back can't resubmit. */
+    fun replaceCurrent(destination: Destination) {
+        if (backStack.isNotEmpty()) backStack.removeAt(backStack.lastIndex)
+        backStack.add(destination)
+    }
+
     fun popToHome() = replaceAll(listOf(Destination.Home))
 
     fun replaceAll(destinations: List<Destination>) {

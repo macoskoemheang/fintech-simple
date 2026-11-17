@@ -1,0 +1,12 @@
+{
+  "$comment": "MCP client config, same shape as Claude Desktop / Claude Code .mcp.json. The app reads this to find which MCP servers to connect to.",
+  "mcpServers": {
+    "booking": {
+      "displayName": "Booking",
+      "description": "Stays, tours and dining across Cambodia. Mock data only.",
+      "transport": "in-process",
+      "definition": "mcp/booking-server.json",
+      "enabled": true
+    }
+  }
+}
