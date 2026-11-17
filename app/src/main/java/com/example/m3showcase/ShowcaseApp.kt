@@ -19,6 +19,7 @@ import com.example.m3showcase.feature.deposits.di.depositsModule
 import com.example.m3showcase.feature.loans.di.loansModule
 import com.example.m3showcase.feature.report.di.reportModule
 import com.example.m3showcase.feature.locator.di.locatorModule
+import com.example.m3showcase.feature.booking.di.bookingModule
 
 class ShowcaseApp : Application() {
     override fun onCreate() {
@@ -42,6 +43,7 @@ class ShowcaseApp : Application() {
                 loansModule,
                 reportModule,
                 locatorModule,
+                bookingModule,
             )
         }
     }

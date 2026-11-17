@@ -60,6 +60,10 @@ import com.example.m3showcase.feature.loans.presentation.list.LoansRoute
 import com.example.m3showcase.feature.loans.presentation.detail.LoanDetailRoute
 import com.example.m3showcase.feature.report.presentation.LoanReportRoute
 import com.example.m3showcase.feature.locator.presentation.LocatorRoute
+import com.example.m3showcase.feature.booking.presentation.hub.BookingHubRoute
+import com.example.m3showcase.feature.booking.presentation.listing.ListingDetailRoute
+import com.example.m3showcase.feature.booking.presentation.detail.BookingDetailRoute
+import com.example.m3showcase.feature.booking.presentation.inspector.McpInspectorRoute
 
 /** Tabs fade into each other instead of sliding like pushed screens. */
 private val TabTransition =
@@ -189,6 +193,7 @@ fun BankApp(isLoggedIn: Boolean, bannerState: ConnectivityBannerState) {
                             SettingsRoute(
                                 onOpenTheme = { navigator.navigate(Destination.Theme) },
                                 onOpenShowcase = { navigator.navigate(Destination.Showcase) },
+                                onOpenBooking = { navigator.navigate(Destination.BookingHub) },
                             )
                         }
                         entry<Destination.Notifications> { NotificationsRoute(onBack = navigator::goBack) }
@@ -219,6 +224,24 @@ fun BankApp(isLoggedIn: Boolean, bannerState: ConnectivityBannerState) {
                             )
                         }
                         entry<Destination.Showcase> { ShowcaseRoute() }
+
+                        entry<Destination.BookingHub> {
+                            BookingHubRoute(
+                                onBack = navigator::goBack,
+                                onOpenListing = { navigator.navigate(Destination.BookingListing(it)) },
+                                onOpenBooking = { navigator.navigate(Destination.BookingDetail(it)) },
+                                onOpenInspector = { navigator.navigate(Destination.McpInspector) },
+                            )
+                        }
+                        entry<Destination.BookingListing> { key ->
+                            ListingDetailRoute(
+                                listingId = key.listingId,
+                                onBack = navigator::goBack,
+                                onBooked = { navigator.replaceCurrent(Destination.BookingDetail(it, isNew = true)) },
+                            )
+                        }
+                        entry<Destination.BookingDetail> { key -> BookingDetailRoute(key.bookingId, key.isNew, onBack = navigator::goBack) }
+                        entry<Destination.McpInspector> { McpInspectorRoute(onBack = navigator::goBack) }
                     },
                 )
             }

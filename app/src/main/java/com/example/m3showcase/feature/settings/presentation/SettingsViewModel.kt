@@ -63,6 +63,7 @@ class SettingsViewModel(
             SettingsViewAction.OnThemeClicked -> _events.trySend(SettingsEvent.OpenTheme)
             is SettingsViewAction.OnHideBalanceChanged -> viewModelScope.launch { setBalanceHidden(action.hidden) }
             SettingsViewAction.OnOpenShowcaseClicked -> _events.trySend(SettingsEvent.OpenShowcase)
+            SettingsViewAction.OnOpenBookingClicked -> _events.trySend(SettingsEvent.OpenBooking)
             SettingsViewAction.OnLogoutClicked -> showLogoutDialog.value = true
             SettingsViewAction.OnLogoutDismissed -> showLogoutDialog.value = false
             SettingsViewAction.OnLogoutConfirmed -> viewModelScope.launch {

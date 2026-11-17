@@ -27,6 +27,7 @@ sealed interface SettingsViewAction {
     data object OnThemeClicked : SettingsViewAction
     data class OnHideBalanceChanged(val hidden: Boolean) : SettingsViewAction
     data object OnOpenShowcaseClicked : SettingsViewAction
+    data object OnOpenBookingClicked : SettingsViewAction
     data object OnLogoutClicked : SettingsViewAction
     data object OnLogoutConfirmed : SettingsViewAction
     data object OnLogoutDismissed : SettingsViewAction
@@ -41,4 +42,5 @@ sealed interface SettingsViewAction {
 sealed interface SettingsEvent {
     data object OpenTheme : SettingsEvent
     data object OpenShowcase : SettingsEvent
+    data object OpenBooking : SettingsEvent
 }

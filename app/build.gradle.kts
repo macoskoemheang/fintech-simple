@@ -60,6 +60,8 @@ dependencies {
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
     implementation(libs.kotlinx.serialization.core)
+    // JSON-RPC messages for the in-app Booking MCP server and client
+    implementation(libs.kotlinx.serialization.json)
 
     // Local persistence (theme mode, hide-balance preference)
     implementation(libs.androidx.datastore.preferences)
